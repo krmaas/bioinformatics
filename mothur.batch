@@ -1,0 +1,120 @@
+###basic mothur processing of MiSeq sequences using the Caporasso primer.  This batch is based on mothur.org/wiki/MiSeq_SOP  All commands are explained in much more detail in that SOP
+
+### This batch file is written for one MiSeq run.  If you have multiple runs, you will need to run this process in 2 steps:  First make.contigs on each run individually (if you're feeling sassy you can do this with a "for n in" statement which I haven't provided) then combine all the *001.trim.contigs.fasta and *.contigs.groups
+
+### In addition to your sequence files and the oligos file, you need some files from the mothur website to be accessible (either in your path or in the folder you are working in). The line below moves them from my public directory on the BBC server to your current directory.
+##############silva.v4.fasta (which was created from silva.bacteria.fasta), trainset10_082014.pds.fasta, trainset10_082014.pds.tax
+system(cp /scratch/km/{silva.v4.fasta, trainset10_082014.pds.fasta, trainset10_082014.pds.tax} .)
+
+### Currently Mothur 1.35 needs uncompressed fastq run
+###this has been fixed in 1.36
+#system(gzip -d *001.fastq.gz)
+
+# replace YOUR with the names of your files, also make sure that you change the processors if you are working on a personal computer rather than server
+make.contigs(processors=8, ffastq=YOUR_R1_001.fastq, rfastq=YOUR_R2_001.FASTQ, findex=YOUR_I_001.FASTQ, oligos=YOUR.OLIGOS)
+
+
+##### Alternative make.contigs if your sequences were demultiplexed on the MiSeq
+#make.contigs(processors=8, file=YOUR_stability.files)
+#####
+
+########################
+### This section can be ignored if you are analyzing a single MiSeq run
+### When combining multiple sequencing runs, you have to run make.contigs on each run individually.
+###
+### This for loop will work for samples where the files are names like
+###		9_2_14_S0_L001_R1_001.fastq
+###		9_2_14_S0_L001_R2_001.fastq
+###		9_2_14_S0_L001_I1_001.fastq
+###		9_2_14.oligos
+###
+### for o in *.oligos; do 
+###		i=`basename $o .oligos`_S0_L001_I1_001.fastq; 
+###		f=`basename $o .oligos`_S0_L001_R1_001.fastq; 
+###		r=`basename $o .oligos`_S0_L001_R2_001.fastq; 
+###		mothur "#make.contigs(processors=8, ffastq=$f, rfastq=$r, findex=$i, oligos=$o)"; 
+###	done
+###
+### Then concatenate the contigs fasta and groups, the following commands will concatenate all the 
+### *001.trim.contigs.fasta and *.contigs.groups in your current directory.  
+### MAKE SURE THIS IS WHAT YOU WANT TO DO, that you really want to analyze all of the fasta together.  
+### Uncomment the following 4 lines and change NAME to something that is useful and memorable to you.
+#
+#system(cat *001.trim.contigs.fasta > NAME.contigs.fasta)
+#system(cat *contigs.groups > NAME.contigs.groups)
+#summary.seqs(fasta=NAME.contigs.fasta)
+#screen.seqs(fasta=current, group=NAME.contigs.groups, summary=current, maxambig=0, maxlength=300)
+#
+### If you are combining runs, comment out the "make.contigs" line above and the next 2 lines because you just ran them
+#######################
+
+
+#Summary.seqs counts the number of sequences you are currently dealing with, running this after every step gives you a good starting point for troubleshooting if the process fails or if it produces something other than what you expect.
+summary.seqs(fasta=current)
+
+#Cleaning up obviously bad sequences
+screen.seqs(fasta=current, group=NAME.groups, summary=current, maxambig=0, maxlength=300)
+
+summary.seqs(fasta=current)
+
+#reduce fasta size by only keeping one of each sequence, this generates a names file
+unique.seqs(fasta=current)
+
+summary.seqs(fasta=current, name=current)
+
+#replaces both the names and group file (which contain the name of every sequence) with a count table
+count.seqs(name=current, group=current)
+
+summary.seqs(count=current, fasta=current)
+
+#align to a custom silva db that was trimmed to v4 using "pcr.seqs(fasta=silva.bacteria.fasta, start=13862, end=23444, keepdots=F)"
+align.seqs(fasta=current, reference=silva.v4.fasta)
+
+summary.seqs(fasta=current, count=current)
+
+#remove the seqs that just didn't align (using the nubmers from the previous summmary.seqs
+screen.seqs(fasta=current, count=current, summary=current, start=8, end=9582, maxhomop=8)
+
+#remove columns from alignment that only contain -
+filter.seqs(fasta=current, vertical=T, processors=8)
+
+summary.seqs(fasta=current, count=current)
+
+#pre.cluster to 1% difference to reduce computation time
+pre.cluster(fasta=current, diffs=2, count=current)
+
+summary.seqs(fasta=current, count=current)
+
+#calls chimeras only from the samples that they are called chimeras, if you want to remove from all samples change dereplicate=f
+chimera.uchime(fasta=current, count=current, dereplicate=t)
+
+#removes chimeras
+remove.seqs(fasta=current, accnos=current, count=current)
+
+summary.seqs(fasta=current, count=current)
+
+#RDP classifier
+classify.seqs(fasta=current, count=current, reference=trainset10_082014.pds.fasta, taxonomy=trainset10_082014.pds.tax, cutoff=60)
+
+#remove all non-target sequences
+remove.lineage(fasta=current, count=current, taxonomy=current, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota)
+
+#make otus for each Order individually
+cluster.split(fasta=current, count=current, taxonomy=current, splitmethod=classify, taxlevel=4, cutoff=0.15, processors=4)
+
+#make 3, 5 and 10% OTU matrix
+make.shared(list=current, count=current, label=0.03-0.05-0.10)
+
+#classify each OTU, used the RDP classification 100% means all seqs in that OTU match at that classification level
+classify.otu(list=current, count=current, taxonomy=current)
+
+get.oturep(fasta=current, count=current, list=current)
+
+#check number of sequences in each sample
+count.groups(shared=current)
+
+#alpha diversity
+summary.single(shared=current, calc=nseqs-sobs-coverage-shannoneven-invsimpson, subsample=10000)
+
+#beta diversity
+dist.shared(shared=current, calc=braycurtis-jest-thetayc, subsample=10000)
