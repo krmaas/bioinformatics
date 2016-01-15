@@ -1,0 +1,32 @@
+##QIIME sequence processing starting from samples that have been demultiplexed on the MiSeq. Fastq.gz can be downloaded from BaseSpace, each sample gets it's own folder.  These commands are assuming that you have downloaded the files into your shared folder, then within the qiime vb moved the files to the desktop.  QIIME virtual box doesn't like working in the shared folder which is why you need to move your files onto the desktop.
+
+##MARS is naming the samples by user name and the sequences by our unique barcode for the sample (this prevents us giving you the wrong sample but still lets you easily glance through your files to find samples).  QIIME will use the beginning of the fastq.gz as the sample name so we need to append your name to the fastq.  QIIME does not allow any characters other than "."
+
+#cd into folder containing the folders of data
+
+mkdir fastq
+for i in */Data/Intensities/BaseCalls/*.gz; do mv $i "fastq""/"${i%%-*}"."`basename $i`; done
+
+mkdir qiime
+
+multiple_join_paired_ends.py -i . -o qiime/ 
+
+#remove all fastq that didn't join
+mkdir nonjoin
+find qiime/ -name "fastqjoin.un*" -print -exec mv {} nonjoin/ \;
+find qiime/ -size "0" -print -exec mv {} nonjoin/ \;
+
+multiple_split_libraries_fastq.py -i qiime/ -o qiime/ --demultiplexing_method sampleid_by_file --include_input_dir_path
+
+#remove extra BaseSpace info from sequence names in seqs.fna
+
+cp qiime/seqs.fna qiime/full.fna
+sed 's/_S.*_L001.*join.fastq//g' qiime/full.fna > qiime/seqs.fna1
+
+
+#need to make mapfile but it doesn't need the barcode or linker info http://qiime.org/documentation/file_formats.html#handling-already-demultiplexed-samples
+
+validate_mapping_file.py -m AHPLD_mapfile.txt -o . -b -p #as long as your errors are just about missing barcodes you can proceed to the rest of the processing
+
+
+
