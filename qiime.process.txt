@@ -2,7 +2,7 @@
 
 ##MARS is naming the samples by user name and the sequences by our unique barcode for the sample (this prevents us giving you the wrong sample but still lets you easily glance through your files to find samples).  QIIME will use the beginning of the fastq.gz as the sample name so we need to append your name to the fastq.  QIIME does not allow any characters other than "."
 
-#cd into folder containing the folders of data
+#cd into project folder which contains the folders of data that you downloaded from basespace
 
 mkdir fastq
 for i in */Data/Intensities/BaseCalls/*.gz; do mv $i "fastq""/"${i%%-*}"."`basename $i`; done

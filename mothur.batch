@@ -1,59 +1,81 @@
-###basic mothur processing of MiSeq sequences using the Caporasso primer.  This batch is based on mothur.org/wiki/MiSeq_SOP  All commands are explained in much more detail in that SOP
+###################################################################
+###################################################################
+###################################################################
 
-### This batch file is written for one MiSeq run.  If you have multiple runs, you will need to run this process in 2 steps:  First make.contigs on each run individually (if you're feeling sassy you can do this with a "for n in" statement which I haven't provided) then combine all the *001.trim.contigs.fasta and *.contigs.groups
+
+#Basic mothur processing of MiSeq sequences using the Caporasso primer.  This batch is based on mothur.org/wiki/MiSeq_SOP  All commands are explained in much more detail in that SOP
+
+
+###################################################################
+###################################################################
+
+
+#set.dir(output=., input=.)
 
 ### In addition to your sequence files and the oligos file, you need some files from the mothur website to be accessible (either in your path or in the folder you are working in). The line below moves them from my public directory on the BBC server to your current directory.
 ##############silva.v4.fasta (which was created from silva.bacteria.fasta), trainset10_082014.pds.fasta, trainset10_082014.pds.tax
-system(cp /scratch/km/{silva.v4.fasta, trainset10_082014.pds.fasta, trainset10_082014.pds.tax} .)
+#system(cp /scratch/km/mothur.files/* .)
+
+
+##### make.contigs if your sequences were demultiplexed on the MiSeq **this is MARS default as of Fall 2015**
+#system(for i in */Data/Intensities/BaseCalls/*.gz; do mv $i "fastq""/"${i%%-*}"."`basename $i`; done)
+
 
 ### Currently Mothur 1.35 needs uncompressed fastq run
-###this has been fixed in 1.36
-#system(gzip -d *001.fastq.gz)
+###this has been fixed in 1.36 IF you compiled with Boost
+#system(gzip -d fastq/*001.fastq.gz)
 
-# replace YOUR with the names of your files, also make sure that you change the processors if you are working on a personal computer rather than server
-make.contigs(processors=8, ffastq=YOUR_R1_001.fastq, rfastq=YOUR_R2_001.FASTQ, findex=YOUR_I_001.FASTQ, oligos=YOUR.OLIGOS)
-
-
-##### Alternative make.contigs if your sequences were demultiplexed on the MiSeq
-#make.contigs(processors=8, file=YOUR_stability.files)
+#make.file(inputdir=fastq)
+make.contigs(processors=16, file=YOURFILES.file)
 #####
+
+
+##################################################################
+######### Running mothur with non-demultiplexed samples  #########
+##################################################################
+### Originally I wrote this batch file for one MiSeq run of non-demultiplexed data, here's my sage advice for that situation.  If you have multiple runs that weren't demultiplexed by the MiSeq, you will need to run this process in 2 steps:  First make.contigs on each run individually (if you're feeling sassy you can do this with a "for n in" statement which I haven't provided) then combine all the *001.trim.contigs.fasta and *.contigs.groups
+
+## Running single non-demultiplexed samples
+# replace YOUR with the names of your files, also make sure that you change the processors if you are working on a personal computer rather than server
+#make.contigs(processors=16, ffastq=YOUR_R1_001.fastq, rfastq=YOUR_R2_001.FASTQ, findex=YOUR_I_001.FASTQ, oligos=YOUR.OLIGOS)
 
 ########################
 ### This section can be ignored if you are analyzing a single MiSeq run
 ### When combining multiple sequencing runs, you have to run make.contigs on each run individually.
 ###
 ### This for loop will work for samples where the files are names like
-###		9_2_14_S0_L001_R1_001.fastq
-###		9_2_14_S0_L001_R2_001.fastq
-###		9_2_14_S0_L001_I1_001.fastq
+###		9_2_14_Undetermined_S0_L001_R1_001.fastq
+###		9_2_14_Undetermined_S0_L001_R2_001.fastq
+###		9_2_14_Undetermined_S0_L001_I1_001.fastq
 ###		9_2_14.oligos
 ###
-### for o in *.oligos; do 
-###		i=`basename $o .oligos`_S0_L001_I1_001.fastq; 
-###		f=`basename $o .oligos`_S0_L001_R1_001.fastq; 
-###		r=`basename $o .oligos`_S0_L001_R2_001.fastq; 
-###		mothur "#make.contigs(processors=8, ffastq=$f, rfastq=$r, findex=$i, oligos=$o)"; 
-###	done
+#for o in *.oligos; do 
+#		i=`basename $o .oligos`_Undetermined_S0_L001_I1_001.fastq; 
+#		f=`basename $o .oligos`_Undetermined_S0_L001_R1_001.fastq; 
+#		r=`basename $o .oligos`_Undetermined_S0_L001_R2_001.fastq; 
+#		mothur "#make.contigs(processors=16, ffastq=$f, rfastq=$r, findex=$i, oligos=$o)"; 
+#	done
 ###
 ### Then concatenate the contigs fasta and groups, the following commands will concatenate all the 
 ### *001.trim.contigs.fasta and *.contigs.groups in your current directory.  
 ### MAKE SURE THIS IS WHAT YOU WANT TO DO, that you really want to analyze all of the fasta together.  
 ### Uncomment the following 4 lines and change NAME to something that is useful and memorable to you.
 #
-#system(cat *001.trim.contigs.fasta > NAME.contigs.fasta)
-#system(cat *contigs.groups > NAME.contigs.groups)
-#summary.seqs(fasta=NAME.contigs.fasta)
-#screen.seqs(fasta=current, group=NAME.contigs.groups, summary=current, maxambig=0, maxlength=300)
+#system(cat /archive/kmaas/*001.trim.contigs.fasta > /common/scratch/km/YOUR.contigs.fasta)
+#system(cat /archive/kmaas/*contigs.groups > /common/scratch/km/YOUR.contigs.groups)
+#summary.seqs(fasta=YOUR.contigs.fasta)
+#screen.seqs(fasta=current, group=YOUR.contigs.groups, summary=current, maxambig=0, maxlength=270)
 #
 ### If you are combining runs, comment out the "make.contigs" line above and the next 2 lines because you just ran them
-#######################
-
+###################################################################
+############ End non-demultiplexed section ########################
+###################################################################
 
 #Summary.seqs counts the number of sequences you are currently dealing with, running this after every step gives you a good starting point for troubleshooting if the process fails or if it produces something other than what you expect.
 summary.seqs(fasta=current)
 
 #Cleaning up obviously bad sequences
-screen.seqs(fasta=current, group=NAME.groups, summary=current, maxambig=0, maxlength=300)
+screen.seqs(fasta=current, group=current, summary=current, maxambig=0, maxlength=270)
 
 summary.seqs(fasta=current)
 
@@ -65,18 +87,16 @@ summary.seqs(fasta=current, name=current)
 #replaces both the names and group file (which contain the name of every sequence) with a count table
 count.seqs(name=current, group=current)
 
-summary.seqs(count=current, fasta=current)
-
-#align to a custom silva db that was trimmed to v4 using "pcr.seqs(fasta=silva.bacteria.fasta, start=13862, end=23444, keepdots=F)"
-align.seqs(fasta=current, reference=silva.v4.fasta)
+#align to a custom silva db that was trimmed to v4 using "pcr.seqs(fasta=silva.nr_119.fasta, start=13862, end=23444, keepdots=F)"
+align.seqs(fasta=current, reference=silva.nr_v119.v4.align)
 
 summary.seqs(fasta=current, count=current)
 
 #remove the seqs that just didn't align (using the nubmers from the previous summmary.seqs
-screen.seqs(fasta=current, count=current, summary=current, start=8, end=9582, maxhomop=8)
+screen.seqs(fasta=current, count=current, summary=current, start=1968, end=11550, maxhomop=8)
 
 #remove columns from alignment that only contain -
-filter.seqs(fasta=current, vertical=T, processors=8)
+filter.seqs(fasta=current, vertical=T)
 
 summary.seqs(fasta=current, count=current)
 
@@ -93,14 +113,19 @@ remove.seqs(fasta=current, accnos=current, count=current)
 
 summary.seqs(fasta=current, count=current)
 
-#RDP classifier
-classify.seqs(fasta=current, count=current, reference=trainset10_082014.pds.fasta, taxonomy=trainset10_082014.pds.tax, cutoff=60)
+#RDP classifier using silva as the reference (similar results as RDP reference but some are classified to species)
+classify.seqs(fasta=current, count=current, reference=silva.nr_v119.v4.align, taxonomy=silva.nr_v119.tax, cutoff=60)
 
 #remove all non-target sequences
 remove.lineage(fasta=current, count=current, taxonomy=current, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota)
 
-#make otus for each Order individually
+#make tax.summary file for krona that doesn't have above taxon
+summary.tax(taxonomy=current, count=current)
+
+#make otus for each Order individually, for very large datasets (hundreds of samples) you may need to decrease the taxlevel to 5 or even 6. If you use 6 you will likely only get 3% OTUs because the within group differences aren't always 5%
 cluster.split(fasta=current, count=current, taxonomy=current, splitmethod=classify, taxlevel=4, cutoff=0.15, processors=4)
+
+summary.seqs(processors=16)
 
 #make 3, 5 and 10% OTU matrix
 make.shared(list=current, count=current, label=0.03-0.05-0.10)
@@ -108,13 +133,39 @@ make.shared(list=current, count=current, label=0.03-0.05-0.10)
 #classify each OTU, used the RDP classification 100% means all seqs in that OTU match at that classification level
 classify.otu(list=current, count=current, taxonomy=current)
 
-get.oturep(fasta=current, count=current, list=current)
+get.oturep(fasta=current, count=current, list=current, method=abundance)
 
 #check number of sequences in each sample
 count.groups(shared=current)
 
 #alpha diversity
-summary.single(shared=current, calc=nseqs-sobs-coverage-shannoneven-invsimpson, subsample=10000)
+summary.single(shared=current, calc=nseqs-sobs-coverage-shannon-shannoneven-invsimpson, subsample=10000)
 
 #beta diversity
 dist.shared(shared=current, calc=braycurtis-jest-thetayc, subsample=10000)
+
+#make a rarified OTU table for heatmaps, indicator species, etc
+sub.sample(shared=current, size=10000)
+
+
+system(mkdir send)
+system(cp *shared send)
+system(cp *cons.tax* send)
+system(cp *pick.tax.summary send)
+system(cp *.rep.fasta send)
+system(cp *lt.ave.dist send)
+system(cp *groups.ave-std.summary send)
+system(cp mothur.batch send)
+system(rm send/*0.01*)
+system(rm send/*0.02*)
+system(rm send/*0.04*)
+system(rm send/*0.06*)
+system(rm send/*0.07*)
+system(rm send/*0.08*)
+
+
+###############
+## Krona
+#python mothur_krona_XML.py /path/to/pick.tax.summary >output.xml
+#ktImportXML output.xml
+
