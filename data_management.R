@@ -92,3 +92,21 @@ phyla.color <- revalue(phyla.f, c("Alphaproteobacteria" = "#A6CEE3", "Betaproteo
 otu <- read.table(file="fancher.all.trim.contigs.good.unique.good.filter.precluster.pick.pick.an.unique_list.0.03.subsample.shared", header=T, row.names=2)
 otu$label <- NULL
 otu$nunumOtus <- NULL
+
+
+##### pull out samples that have failed PCR and have low eDNA
+
+setwd("C:/Users/Kendra Maas/Desktop")
+library(dplyr)
+sampsum <- read.csv(file="sample_summary.csv", header=T)
+edna <- read.csv(file="edna.csv", header=T)
+
+comb.sum <- left_join(sampsum, edna, by = "Sample_ID")
+
+moeller.worked <- comb.sum[comb.sum$PCR_concentration>0.1,]
+
+moeller.reextract <- anti_join(edna, moeller.worked, by = "Sample_ID")
+
+moeller.reextract <- moeller.reextract[moeller.reextract$DNA<10,]
+
+write.csv(moeller.reextract, file="moeller.reextract.csv")

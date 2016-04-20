@@ -26,9 +26,21 @@
 #system(gzip -d fastq/*001.fastq.gz)
 
 #make.file(inputdir=fastq)
+
+
+
+############################
+##I'm finding that it's easier to run the first few steps in just the shell
+#mkdir fastq
+#for i in */Data/Intensities/BaseCalls/*.gz; do mv $i "fastq""/"${i%%-*}"."`basename $i`; done
+#gzip -d fastq/*001.fastq.gz
+#mothur "#make.file(inputdir=fastq)"
+#mv fileList.paired.file YOURFILES.file
+#cp /scratch/km/mothur.files/* .
+############################
+
 make.contigs(processors=16, file=YOURFILES.file)
 #####
-
 
 ##################################################################
 ######### Running mothur with non-demultiplexed samples  #########
