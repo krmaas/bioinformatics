@@ -35,7 +35,8 @@
 #for i in */Data/Intensities/BaseCalls/*.gz; do mv $i "fastq""/"${i%%-*}"."`basename $i`; done
 #gzip -d fastq/*001.fastq.gz
 #mothur "#make.file(inputdir=fastq)"
-#mv fileList.paired.file YOURFILES.file
+## add the user name as the first column for the files.file
+#awk -F'[/.]' '{printf "%s\t%s\n", $2, $0}' fileList.paired.file > YOURFILES.file
 #cp /scratch/km/mothur.files/* .
 ############################
 
