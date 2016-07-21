@@ -1,0 +1,291 @@
+---
+title: "genericFirstLook"
+author: "Kendra Maas"
+date: "Sept , 2016"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# install.packages("ggplot2")
+# install.packages("vegan")
+# install.packages("ecodist")
+# install.packages("RColorBrewer")
+# install.packages("tidyr")
+# install.packages("dplyr")
+# install.packages("knitr")
+# install.packages("indicspecies")
+library(ggplot2)
+library(vegan)
+library(ecodist)
+library(RColorBrewer)
+library(tidyr)
+library(dplyr)
+library(indicspecies)
+
+ggplotRegression <- function (fit) {
+    
+    require(ggplot2)
+    
+    ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+        geom_point() +
+        stat_smooth(method = "lm", col = "red") +
+        labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                           "Intercept =",signif(fit$coef[[1]],5 ),
+                           " Slope =",signif(fit$coef[[2]], 5),
+                           " P =",signif(summary(fit)$coef[2,4], 5)))
+}
+
+parseDistanceDF = function(phylip_file) {
+
+   # Read the first line of the phylip file to find out how many sequences/samples it contains
+    temp_connection = file(phylip_file, 'r')
+    len = readLines(temp_connection, n=1)
+    len = as.numeric(len)
+    len = len +1
+    close(temp_connection)
+   
+   
+    phylip_data = read.table(phylip_file, fill=T, row.names=1, skip=1, col.names=1:len)
+    colnames(phylip_data) <- row.names(phylip_data)
+    return(phylip_data)
+}
+
+
+
+
+    ```
+
+##R Markdown
+
+```{r read in data}
+
+otu <- read.table(file = "../YOURPROJECT.trim.contigs.good.unique.good.filter.precluster.pick.pick.an.unique_list.0.03.subsample.shared", header=T, stringsAsFactors = FALSE)
+otu <- select(otu, -label, -numOtus)
+
+# only file that need manupalition before reading in, this is based on cons.taxonomy
+taxa <- read.csv(file="YOURPROJECT.0.03.taxa.csv", header=T, sep=",", stringsAsFactors = FALSE)
+taxa <- taxa[taxa$OTU %in% names(otu),]
+
+maxab <- apply(otu, 2, max)
+n1 <- names(which(maxab < 500))
+otu.ab <- otu[,-which(names(otu) %in% n1)]
+taxa.ab <- taxa[-which(taxa$OTU %in% n1),]
+
+# Alpha diversity
+
+alpha <- read.table(file="../YOURPROJECT.trim.contigs.good.unique.good.filter.precluster.pick.pick.an.unique_list.groups.ave-std.summary", header=T, stringsAsFactors = FALSE)
+alpha <- filter(alpha, label== "0.03" & method == "ave")
+
+# Beta diversity
+jc <- parseDistanceDF("../YOURPROJECT.trim.contigs.good.unique.good.filter.precluster.pick.pick.an.unique_list.jest.0.03.lt.ave.dist")
+bc <- parseDistanceDF("../YOURPROJECT.trim.contigs.good.unique.good.filter.precluster.pick.pick.an.unique_list.braycurtis.0.03.lt.ave.dist")
+tyc <- parseDistanceDF("YOURPROJECT.trim.contigs.good.unique.good.filter.precluster.pick.pick.an.unique_list.thetayc.0.03.lt.ave.dist")
+
+# experimental data
+expdata <- read.csv(file="experiment.csv", header=T, stringsAsFactors = FALSE)
+expdata <- arrange(expdata, sample)
+
+#I create a csv with client sample and group that has sequence name (Client name + MARS barcode)
+
+group.dat <- read.csv(file="group.csv", header=T, stringsAsFactors = FALSE)
+
+expdata <- left_join(expdata, group.dat, on="sample")
+
+alpha.expdata <- left_join(alpha, expdata, on="group")
+
+
+
+
+```
+
+Boxplots of alpha diversity measures (diversity within a sample)
+
+I'm adding the actual data points to the first one just to demonstrate the possiblility. Sometimes I like it in addition to the boxplot
+
+```{r alpha diversity treatment}
+# alpha diversity (diversity within a sample)
+xlab <- paste(levels(as.factor(alpha.expdata$treatment)),"\n(N=", table(alpha.expdata$treatment),")", sep="")
+simp <-  ggplot(data=alpha.expdata, (aes(x=treatment, y=invsimpson)))+
+    geom_boxplot(varwidth = T)+
+    geom_jitter(width=0.2)+
+    scale_x_discrete(labels=xlab)+
+    theme_bw()+
+    ggtitle("Bacterial Diversity by Treatment")
+
+simp
+```
+
+Linear Regression of the factors measured against Bacterial Diversity
+```{r alpha diversity experimental measurements}
+
+
+
+
+ggplotRegression(lm(invsimpson~YOURFACTOR, data = alpha.expdata))
+ggplotRegression(lm(invsimpson~YOURFACTOR, data = alpha.expdata))
+
+```
+
+Linear Regression for each treatment of the factors measured against Bacterial Diversity
+```{r alpha diversity experimental measurements by treatment}
+ggplot(data=alpha.expdata, (aes(x=YOURFACTOR, y=invsimpson,color=treatment)))+
+    geom_point(aes(size=3))+
+    scale_color_brewer(palette="Spectral")+
+    stat_smooth(method="lm")+
+    theme_bw()+
+    ggtitle("Bacterial Diversity by YOURFACTOR")
+
+
+
+```
+
+=======
+jc=Jaccard dissimilarity measure, presence absence. This one overweights rare species by counting a rare species and an abundant on as simply present
+```{r beta div nms j}
+
+jc.nms <- metaMDS(as.dist(jc), k=2, trymin=50, trymax=500, wascores=F)
+jc.points <- data.frame(jc.nms$points)
+jc.plot <- ggplot(jc.points, aes(x=MDS1, y=MDS2))
+
+
+jc.plot + geom_point(aes(color=factor(alpha.expdata$YOURFACTOR1),  size=alpha.expdata$YOURFACTOR2))+
+    theme_bw()+
+    scale_color_brewer(palette="Spectral")
+```
+
+bc= Bray-Curtis dissimilarity measure that incoorporates abundance
+```{r beta div nms bc}
+
+bc.nms <- metaMDS(as.dist(bc), k=2, trymin=50, trymax=500, wascores=F)
+bc.points <- data.frame(bc.nms$points)
+bc.plot <- ggplot(bc.points, aes(x=MDS1, y=MDS2))
+
+
+bc.plot + geom_point(aes(color=factor(alpha.expdata$YOURFACTOR1),  size=alpha.expdata$YOURFACTOR2))+
+    theme_bw()+
+    scale_color_brewer(palette="Spectral")
+```
+
+
+tyc= Theta YC distance measure that strongly penalizes species that are abundant in one sample and missing in another. Strongly downweights rare species
+```{r beta div nms tyc}
+
+tyc.nms <- metaMDS(as.dist(tyc), k=2, trymin=50, trymax=250, wascores=F)
+tyc.points <- data.frame(tyc.nms$points)
+tyc.plot <- ggplot(tyc.points, aes(x=MDS1, y=MDS2))
+
+
+tyc.plot + geom_point(aes(color=factor(alpha.expdata$YOURFACTOR1),  size=alpha.expdata$YOURFACTOR2))+
+    theme_bw()+
+    scale_color_brewer(palette="Spectral")
+
+
+```
+
+
+Hypothesis testing
+
+Permanova results that I look at significance (Pr(>F)) and the R2 which can be interpreted as roughly the % varibility in your whole community that can be explained by the model factor 
+```{r hypothesis testing}
+
+permanova <- adonis(as.dist(jc)~alpha.expdata$YOURFACTOR, perm=999, rm.na=TRUE)
+permanova
+
+permanova <- adonis(as.dist(bc)~alpha.expdata$YOURFACTOR, perm=999, rm.na=TRUE)
+permanova
+
+permanova <- adonis(as.dist(tyc)~alpha.expdata$YOURFACTOR, perm=999, rm.na=TRUE)
+permanova
+
+permanova <- adonis(as.dist(jc)~alpha.expdata$YOURFACTOR1+ alpha.expdata$YOURFACTOR2, perm=999, rm.na=TRUE)
+permanova
+
+permanova <- adonis(as.dist(bc)~alpha.expdata$YOURFACTOR1+ alpha.expdata$YOURFACTOR2, perm=999, rm.na=TRUE)
+permanova
+
+permanova <- adonis(as.dist(tyc)~alpha.expdata$YOURFACTOR1+ alpha.expdata$YOURFACTOR2, perm=999, rm.na=TRUE)
+permanova
+```
+
+```{r indicator species}
+
+# otu[,-1] tells multipatt to ignore the first column which holds the name
+indic <- multipatt(otu[,-1], alpha.expdata$treatment,control = how(nperm=999), duleg=TRUE)
+# summary(indic)
+
+write.csv(file="indicator.species.csv",indic$sign%>%
+    add_rownames(var = "OTU")%>%
+    right_join(taxa, by = "OTU")%>%
+    filter(p.value < 0.05) %>%
+    arrange(index))
+
+
+
+```
+
+\pagebreak
+This NMS (Theta YC) has the strongest associated OTUs mapped on top as vectors, it's very messy but gives you and idea of how the samples relate to OTUs.
+
+```{r nms with vectors, echo=FALSE}
+
+# nms <- metaMDS(otu, distance ="bray", k=2, trymax=1000, wascores=TRUE)
+
+##try making full plot with just vegan and ggplot from http://stackoverflow.com/questions/14711470/plotting-envfit-vectors-vegan-package-in-ggplot2
+
+scrs <- as.data.frame(scores(tyc.nms, display ='sites'))
+scrs <- cbind(scrs,
+              YOURFACTOR1=alpha.expdata$YOURFACTOR1,
+              Simpson=alpha.expdata$invsimpson)
+spec <- envfit(tyc.nms, otu, perm=99)
+
+spp.scrs <- as.data.frame((scores(spec, display="vectors")))
+spp.scrs <- cbind(spp.scrs, Species =rownames(spp.scrs))
+spp.scrs <- cbind(spp.scrs, pVal=spec$vectors$pvals)
+spp.scrs <- cbind(spp.scrs, Phyla=taxa$YOURTAXA)
+
+###color vectors by phyla
+
+ggplot(scrs)+
+    coord_fixed()+
+    geom_segment(data=spp.scrs[spp.scrs$pVal<0.011,],
+                 aes(x=0, xend=NMDS1, y=0, yend=NMDS2, color = Phyla),
+                 arrow=arrow(length=unit (0.25, "cm")), size=1.5)+
+    # scale_color_manual(values=spp.scrs$phy.col[spp.scrs$pVal<0.025])+
+    geom_point(mapping=aes(x=NMDS1, y=NMDS2, shape = as.factor(treatment)), size=2)+
+    # geom_text(data=scrs, aes(x=NMDS1-.02, y=NMDS2-.02, label=row.names(scrs)), size=4)+
+    # geom_text(data =spp.scrs[spp.scrs$pVal<0.005,], aes(x=NMDS1, y=NMDS2, label=Phyla), size=4)+
+    theme_bw()
+```
+
+
+Same as above but only fitting abundant OTUs (only keeping OTUs that are at least 5% of at least one sample)
+
+```{r nms with vectors only abundant, echo=FALSE}
+
+# nms <- metaMDS(otu, distance ="bray", k=2, trymax=1000, wascores=TRUE)
+
+##try making full plot with just vegan and ggplot from http://stackoverflow.com/questions/14711470/plotting-envfit-vectors-vegan-package-in-ggplot2
+
+
+spec <- envfit(tyc.nms, otu.ab, perm=99)
+
+spp.scrs <- as.data.frame((scores(spec, display="vectors")))
+spp.scrs <- cbind(spp.scrs, Species =rownames(spp.scrs))
+spp.scrs <- cbind(spp.scrs, pVal=spec$vectors$pvals)
+spp.scrs <- cbind(spp.scrs, Phyla=taxa.ab$family)
+
+###color vectors by phyla
+
+ggplot(scrs)+
+    coord_fixed()+
+    geom_segment(data=spp.scrs[spp.scrs$pVal<0.011,],
+                 aes(x=0, xend=NMDS1, y=0, yend=NMDS2, color = Phyla),
+                 arrow=arrow(length=unit (0.25, "cm")), size=1.5)+
+    # scale_color_manual(values=spp.scrs$phy.col[spp.scrs$pVal<0.025])+
+    geom_point(mapping=aes(x=NMDS1, y=NMDS2, shape = as.factor(treatment)), size=2)+
+    # geom_text(data=scrs, aes(x=NMDS1-.02, y=NMDS2-.02, label=row.names(scrs)), size=4)+
+    # geom_text(data =spp.scrs[spp.scrs$pVal<0.005,], aes(x=NMDS1, y=NMDS2, label=Phyla), size=4)+
+    theme_bw()
+```

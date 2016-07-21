@@ -21,7 +21,7 @@ multiple_split_libraries_fastq.py -i qiime/ -o qiime/ --demultiplexing_method sa
 #remove extra BaseSpace info from sequence names in seqs.fna
 
 cp qiime/seqs.fna qiime/full.fna
-sed 's/_S.*_L001.*join.fastq//g' qiime/full.fna > qiime/seqs.fna1
+sed 's/_S.*_L001.*join.fastq//g' qiime/full.fna > qiime/seqs.fna
 
 
 #need to make mapfile but it doesn't need the barcode or linker info http://qiime.org/documentation/file_formats.html#handling-already-demultiplexed-samples
