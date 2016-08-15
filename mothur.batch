@@ -88,7 +88,7 @@ make.contigs(processors=16, file=YOURFILES.file)
 summary.seqs(fasta=current)
 
 #Cleaning up obviously bad sequences
-screen.seqs(fasta=current, group=current, summary=current, maxambig=0, maxlength=270)
+screen.seqs(fasta=current, group=current, summary=current, maxambig=0, maxlength=275)
 
 summary.seqs(fasta=current)
 
