@@ -77,7 +77,7 @@ make.contigs(processors=16, file=YOURFILES.file)
 #system(cat /archive/kmaas/*001.trim.contigs.fasta > /common/scratch/km/YOUR.contigs.fasta)
 #system(cat /archive/kmaas/*contigs.groups > /common/scratch/km/YOUR.contigs.groups)
 #summary.seqs(fasta=YOUR.contigs.fasta)
-#screen.seqs(fasta=current, group=YOUR.contigs.groups, summary=current, maxambig=0, maxlength=270)
+#screen.seqs(fasta=current, group=YOUR.contigs.groups, summary=current, maxambig=0, maxlength=275)
 #
 ### If you are combining runs, comment out the "make.contigs" line above and the next 2 lines because you just ran them
 ###################################################################
