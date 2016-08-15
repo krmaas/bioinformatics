@@ -36,7 +36,7 @@
 #gzip -d fastq/*001.fastq.gz
 #mothur "#make.file(inputdir=fastq)"
 ## add the user name as the first column for the files.file
-#awk -F'[/.]' '{printf "%s\t%s\n", $2, $0}' fileList.paired.file > YOURFILES.file
+#awk -F'[/_]' '{printf "%s\t%s\n", $2, $0}' fastq/stability.files > YOURFILES.file
 #cp /scratch/km/mothur.files/* .
 ############################
 
