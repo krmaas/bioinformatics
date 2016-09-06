@@ -36,7 +36,7 @@
 #gzip -d fastq/*001.fastq.gz
 #mothur "#make.file(inputdir=fastq)"
 ## add the user name as the first column for the files.file
-#awk -F'[/.]' '{printf "%s\t%s\n", $2, $0}' fileList.paired.file > YOURFILES.file
+#awk -F'[/_]' '{printf "%s\t%s\n", $2, $0}' fastq/stability.files > YOURFILES.file
 #cp /scratch/km/mothur.files/* .
 ############################
 
@@ -77,7 +77,7 @@ make.contigs(processors=16, file=YOURFILES.file)
 #system(cat /archive/kmaas/*001.trim.contigs.fasta > /common/scratch/km/YOUR.contigs.fasta)
 #system(cat /archive/kmaas/*contigs.groups > /common/scratch/km/YOUR.contigs.groups)
 #summary.seqs(fasta=YOUR.contigs.fasta)
-#screen.seqs(fasta=current, group=YOUR.contigs.groups, summary=current, maxambig=0, maxlength=270)
+#screen.seqs(fasta=current, group=YOUR.contigs.groups, summary=current, maxambig=0, maxlength=275)
 #
 ### If you are combining runs, comment out the "make.contigs" line above and the next 2 lines because you just ran them
 ###################################################################
@@ -88,7 +88,7 @@ make.contigs(processors=16, file=YOURFILES.file)
 summary.seqs(fasta=current)
 
 #Cleaning up obviously bad sequences
-screen.seqs(fasta=current, group=current, summary=current, maxambig=0, maxlength=270)
+screen.seqs(fasta=current, group=current, summary=current, maxambig=0, maxlength=275)
 
 summary.seqs(fasta=current)
 
@@ -137,6 +137,7 @@ summary.tax(taxonomy=current, count=current)
 
 #make otus for each Order individually, for very large datasets (hundreds of samples) you may need to decrease the taxlevel to 5 or even 6. If you use 6 you will likely only get 3% OTUs because the within group differences aren't always 5%
 cluster.split(fasta=current, count=current, taxonomy=current, splitmethod=classify, taxlevel=4, cutoff=0.15, processors=4, cluster=f)
+cluster.split(fasta=current, count=current, taxonomy=current, splitmethod=classify, taxlevel=4, cutoff=0.15, processors=16, cluster=f)
 
 cluster.split(file=current, processors=4)
 
@@ -171,6 +172,7 @@ system(cp *.rep.fasta send)
 system(cp *lt.ave.dist send)
 system(cp *groups.ave-std.summary send)
 system(cp mothur.batch send)
+system(cp mothur.*.logfile send)
 system(rm send/*0.01*)
 system(rm send/*0.02*)
 system(rm send/*0.04*)
