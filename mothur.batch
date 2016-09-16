@@ -33,8 +33,7 @@
 ##I'm finding that it's easier to run the first few steps in just the shell
 #mkdir fastq
 #for i in */Data/Intensities/BaseCalls/*.gz; do mv $i "fastq""/"${i%%-*}"."`basename $i`; done
-#gzip -d fastq/*001.fastq.gz
-#mothur "#make.file(inputdir=fastq)"
+#mothur "#make.file(inputdir=fastq, type=gz)"
 ## add the user name as the first column for the files.file
 #awk -F'[/_]' '{printf "%s\t%s\n", $2, $0}' fastq/stability.files > YOURFILES.file
 #cp /scratch/km/mothur.files/* .
