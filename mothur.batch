@@ -11,7 +11,12 @@
 ############################
 ##Run these steps in shell, cd into downloaded project folder
 #mkdir fastq
+###########
+####### Sept 2016 Illumina changed their folder structure
+#for i in */*.gz; do cp $i "fastq""/"${i%%-*}"."`basename $i`; done
+#### older structure
 #for i in */Data/Intensities/BaseCalls/*.gz; do mv $i "fastq""/"${i%%-*}"."`basename $i`; done
+###########
 #mothur "#make.file(inputdir=fastq, type=gz)"
 ## add the user name as the first column for the files.file, this worked for 1.36, doesn't seem necessary for 1.38 BUT mothur has started assuming certain characters will be absent in your sample names so you must check the files file
 #awk -F'[/_]' '{printf "%s\t%s\n", $2, $0}' fastq/stability.files > YOURFILES.file
