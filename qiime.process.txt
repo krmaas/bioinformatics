@@ -5,6 +5,10 @@
 #cd into project folder which contains the folders of data that you downloaded from basespace
 
 mkdir fastq
+
+####### Sept 2016 Illumina changed their folder structure
+for i in */*.gz; do cp $i "fastq""/"${i%%-*}"."`basename $i`; done
+####### Older file stucture
 for i in */Data/Intensities/BaseCalls/*.gz; do mv $i "fastq""/"${i%%-*}"."`basename $i`; done
 
 mkdir qiime
