@@ -144,7 +144,11 @@ system(rm send/*0.04*)
 system(rm send/*0.06*)
 system(rm send/*0.07*)
 system(rm send/*0.08*)
-
+system(rm send/*0.09*)
+system(rm send/*0.11*)
+system(rm send/*0.12*)
+system(rm send/*0.13*)
+system(rm send/*0.14*)
 
 ###############
 ## Krona
