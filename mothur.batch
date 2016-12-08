@@ -122,9 +122,12 @@ summary.single(shared=current, calc=nseqs-sobs-coverage-shannon-shannoneven-invs
 #beta diversity
 dist.shared(shared=current, calc=braycurtis-jest-thetayc, subsample=10000)
 
-#make a rarified OTU table for heatmaps, indicator species, etc
+#make a rarefied OTU table for heatmaps, indicator species, etc
 sub.sample(shared=current, size=10000)
-
+ 
+#make rarified taxonomy file for krona
+sub.sample(taxonomy=current, count=current, list=current, size=10000, persample=true, label=0.03)
+summary.tax(taxonomy=current, count=current)
 
 system(mkdir send)
 system(cp *shared send)
