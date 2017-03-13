@@ -96,17 +96,22 @@ remove.lineage(fasta=current, count=current, taxonomy=current, taxon=Chloroplast
 #make tax.summary file for krona that doesn't have above taxon
 summary.tax(taxonomy=current, count=current)
 
+###### changing clustering to opti method with 1.39
 #make otus for each Order individually, for very large datasets (hundreds of samples) you may need to decrease the taxlevel to 5 or even 6. If you use 6 you will likely only get 3% OTUs because the within group differences aren't always 5%
-
-cluster.split(fasta=current, count=current, taxonomy=current, splitmethod=classify, taxlevel=4, cutoff=0.15, processors=16, cluster=f)
-
+#cluster.split(fasta=current, count=current, taxonomy=current, splitmethod=classify, taxlevel=4, cutoff=0.15, processors=16, cluster=f)
 #if your data is very diverse you may end up with .dist files that are too large for the number of processers (if you are using 4 processors your dist file needs to fit in RAM 4 times. For my system, I have to drop the processors in this step if my largest .dist is over 64GB)
-cluster.split(file=current, processors=4)
+#cluster.split(file=current, processors=4)
+
+dist.seqs(fasta=current, countends=F, cutoff= 0.03, processors=16)
+
+cluster(column=current, count=current, method=opti)
+
 
 summary.seqs(processors=16)
 
-#make 3, 5 and 10% OTU matrix
-make.shared(list=current, count=current, label=0.03-0.05-0.10)
+#make 3, 5 and 10% OTU matrix #### as of 1.39 can only do one level at a time
+#make.shared(list=current, count=current, label=0.03-0.05-0.10)
+make.shared(list=current, count=current)
 
 #classify each OTU, used the RDP classification 100% means all seqs in that OTU match at that classification level
 classify.otu(list=current, count=current, taxonomy=current)
