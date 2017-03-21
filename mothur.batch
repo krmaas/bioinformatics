@@ -20,14 +20,15 @@
 ### In addition to your sequence files and the oligos file, you need some files from the mothur website to be accessible (either in your path or in the folder you are working in). The line below moves them from my public directory on the BBC server to your current directory.
 ##############silva.v4.fasta (which was created from silva.bacteria.fasta), trainset10_082014.pds.fasta, trainset10_082014.pds.tax
 #system(cp /scratch/km/mothur.files/* .)
-
+### or on hpc1
+# cp ../../mothur.files/* .
 
 
 ### Currently Mothur 1.35 needs uncompressed fastq run
 ###this has been fixed in 1.36 IF you compiled with Boost
 #system(gzip -d fastq/*001.fastq.gz)
 
-#make.file(inputdir=fastq)
+make.file(inputdir=fastq)
 
 
 make.contigs(processors=16, file=YOURFILES.file)
