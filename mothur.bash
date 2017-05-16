@@ -1,4 +1,7 @@
 #!bash
+
+module load basemount
+
 PROJECTNAME=$1
 
 mkdir -p $PROJECTNAME/fastq
