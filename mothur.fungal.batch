@@ -1,0 +1,121 @@
+###################################################################
+###################################################################
+###################################################################
+
+
+##Basic mothur processing of MiSeq sequences using ITS2 primers.  This batch is based on mothur.org/wiki/MiSeq_SOP  All commands are explained in much more detail in that SOP. If your data is not demultiplexed, see the chunk of code at the bottom of this file.
+##I use a computer with a high memory node (512gb RAM) with 32 processors. You'll need to adjust processors used to match your system. 
+
+
+#############
+##### I've started using basemount to download the fastq directly to the server. This will download and rename the files to include sample name and sample ID.
+#p=PROJECTNAME
+#mkdir -p $p/fastq
+#for f in basespace/Projects/$p/Samples/*/Files/*.gz; 
+#do s=${f##basespace/Projects/$p/Samples/}; s=${s%%/*}; 
+#cp $f $p"/fastq/"$s"."${f##*Files/}; 
+#done
+#####################
+
+### In addition to your sequence files and the oligos file, you need some files from the mothur website to be accessible (either in your path or in the folder you are working in). The line below moves them from my public directory on the BBC server to your current directory.
+##############silva.v4.fasta (which was created from silva.bacteria.fasta), trainset10_082014.pds.fasta, trainset10_082014.pds.tax
+#system(cp /scratch/km/mothur.files/* .)
+### or on hpc1
+# cp ../../mothur.files/* .
+
+#make.file(inputdir=fastq)
+
+
+make.contigs(processors=32, file=YOURFILES.file)
+
+
+
+#Summary.seqs counts the number of sequences you are currently dealing with, running this after every step gives you a good starting point for troubleshooting if the process fails or if it produces something other than what you expect.
+summary.seqs(fasta=current)
+
+#Cleaning up obviously bad sequences. I picked 350 bp based on one sample set, it's not as obvious what the cutoff should be for ITS as 16s. May want to us maxhomop too?
+screen.seqs(fasta=current, group=current, summary=current, maxambig=0, maxlength=350)
+
+summary.seqs(fasta=current)
+
+#reduce fasta size by only keeping one of each sequence, this generates a names file
+unique.seqs(fasta=current)
+
+summary.seqs(fasta=current, name=current)
+
+#replaces both the names and group file (which contain the name of every sequence) with a count table
+count.seqs(name=current, group=current)
+
+#pre.cluster to 1% difference to reduce computation time, this step can take a very long time (>4hrs for ~115k sequences)
+pre.cluster(fasta=current, diffs=2, count=current)
+
+
+summary.seqs(fasta=current, count=current)
+
+chimera.vsearch(processors=32, fasta=RedRootMicrobiomeFung.trim.contigs.good.good.unique.precluster.fasta, count=RedRootMicrobiomeFung.trim.contigs.good.good.unique.precluster.count_table)
+
+
+#calls chimeras only from the samples that they are called chimeras, if you want to remove from all samples change dereplicate=f
+chimera.vsearch(fasta=current, count=current, dereplicate=t)
+
+#removes chimeras
+remove.seqs(fasta=current, accnos=current, count=current)
+
+summary.seqs(fasta=current, count=current)
+
+#RDP classifier using silva as the reference (similar results as RDP reference but some are classified to species)
+classify.seqs(fasta=current, count=current, reference=UNITEv6_sh_dynamic.fasta, taxonomy=UNITEv6_sh_dynamic.tax, cutoff=60)
+
+
+#remove all non-target sequences
+#remove.lineage(fasta=current, count=current, taxonomy=current, taxon=unknown-Protista)
+
+#make tax.summary file for krona that doesn't have above taxon
+summary.tax(taxonomy=current, count=current)
+
+#cluster using vsearch, default level is cutoff=0.03, since these are ITS we'll use 5% instead
+cluster(fasta=current, count=current, method=agc, processors=4, cutoff=0.05)
+
+
+summary.seqs(processors=32)
+
+#make OTU matrix 
+make.shared(list=current, count=current)
+
+#classify each OTU, used the RDP classification 100% means all seqs in that OTU match at that classification level
+classify.otu(list=current, count=current, taxonomy=current)
+
+get.oturep(fasta=current, count=current, list=current, method=abundance)
+
+#check number of sequences in each sample
+count.groups(shared=current)
+
+#alpha diversity
+summary.single(shared=current, calc=nseqs-sobs-coverage-shannon-shannoneven-invsimpson, subsample=10000)
+
+#beta diversity
+dist.shared(shared=current, calc=braycurtis-jest-thetayc, subsample=10000)
+
+#make a rarefied OTU table for heatmaps, indicator species, etc
+sub.sample(shared=current, size=10000)
+ 
+#make rarified taxonomy file for krona
+sub.sample(taxonomy=YOURPROJECTNAME.trim.contigs.good.unique.precluster.pick.UNITEv6_sh_dynamic.wang.pick.taxonomy, count=YOURPROJECTNAME.trim.contigs.good.unique.precluster.pick.pick.count_table, list=YOURPROJECTNAME.trim.contigs.good.unique.precluster.pick.pick.opti.unique_list.list, size=10000, persample=true)
+
+summary.tax(taxonomy=current, count=current)
+
+system(mkdir send)
+system(cp *shared send)
+system(cp *cons.tax* send)
+system(cp *pick.tax.summary send)
+system(cp *.rep.fasta send)
+system(cp *lt.ave.dist send)
+system(cp *groups.ave-std.summary send)
+system(cp mothur.batch send)
+system(cp mothur.*.logfile send)
+
+
+###############
+## Krona
+#python mothur_krona_XML.py /path/to/*nr_v119_wang.pick.subsample.tax.summary >output.xml
+#ktImportXML output.xml
