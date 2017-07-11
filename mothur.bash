@@ -4,6 +4,8 @@ module load basemount
 
 PROJECTNAME=$1
 
+basemount ../basemountpoint/basespace
+
 # The way that our server handles mounting permissions, I have to change my whole home dir to 777 before mounting
 #chmod 777 /YOURHOMEDIR
 
