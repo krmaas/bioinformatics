@@ -4,11 +4,19 @@ module load basemount
 
 PROJECTNAME=$1
 
+# The way that our server handles mounting permissions, I have to change my whole home dir to 777 before mounting
+#chmod 777 /YOURHOMEDIR
+
 mkdir -p $PROJECTNAME/fastq
 for f in basespace/Projects/$PROJECTNAME/Samples/*/Files/*.gz; 
 do s=${f##basespace/Projects/$PROJECTNAME/Samples/}; s=${s%%/*}; 
 cp $f $PROJECTNAME"/fastq/"$s"."${f##*Files/}; 
 done
+
+# unmount then change permissions back to 700
+#basemount --unmount /YOURHOMEDIR/basemountpoint/basespace
+#chmod 700 /YOURHOMEDIR
+
 
 cd $PROJECTNAME
 
