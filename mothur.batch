@@ -147,6 +147,7 @@ system(rm send/*0.14*)
 
 ###############
 ## Krona
+## using https://github.com/accaldwell/mothur_krona
 #python mothur_krona_XML.py /path/to/*nr_v119_wang.pick.subsample.tax.summary >output.xml
 #ktImportXML output.xml
 
