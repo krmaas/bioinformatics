@@ -8,7 +8,8 @@
 
 
 #############
-##### I've started using basemount to download the fastq directly to the server. This will download and rename the files to include sample name and sample ID.
+##### I've started using basemount to download the fastq directly to the server. This will download and rename the files to include sample name and sample ID. If you don't have 2 files for each sample after that step, check the data structure in the folder in BaseMount. Illumina changed the folders in 2016, the forloop for older data is at the bottom of this script.
+##### If you have issues unmounting basespace, you may need to chmod the mountpoint before mounting basemout. good luck
 #p=PROJECTNAME
 #mkdir -p $p/fastq
 #for f in basespace/Projects/$p/Samples/*/Files/*.gz; 
