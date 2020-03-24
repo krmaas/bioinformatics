@@ -1,0 +1,263 @@
+---
+title: "Daily Covid Summaries"
+date: '`r format(Sys.Date(), "%Y-%B-%d")`'
+author: "Kendra Maas"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+## Set up session
+Public data on the spread of coronavirus has been compiled by Johns Hopkins CSSE for their excellent [dashboard](https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6). They are posting the [raw data on github](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data). I'm writing this up because getting data from GitHub into R is pretty easy, but I have to look it up each time. 
+
+First, I need to set up my R session by installing and loading packages.
+```{r setup, message=FALSE, warning = FALSE}
+
+# install.packages("ggplot2")
+# install.packages("tidyverse") 
+
+library(ggplot2)
+library(tidyverse)
+```
+## Read in global data gathered by Johns Hopkins CSSE 
+
+Now let's fetch the data, currently it looks like the data is updated every evening around 5 EST. We want the raw data not the formated for humans data (click the "Raw" button on the right side of the GitHub window).
+
+
+```{r JohnsHopkins, warning = FALSE}
+
+
+
+covid19cases <- read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", header=TRUE)
+
+tibble(covid19cases)
+
+covid19deaths <- read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv", header=TRUE)
+
+tibble(covid19deaths)
+
+```
+
+### Tidy Johns Hopkins data
+
+Looking at other peoples' data is always interesting, even really nicely organized data like this. Some programs (i.e. SAS) wants each timepoint to have its own variable. In R we want [tidy data](https://tidyr.tidyverse.org/index.html).
+
+1. Every column is variable.
+2. Every row is an observation.
+3. Every cell is a single value.
+
+We have 4 variables with location data (Province.State, Country.Region, Lat, Long) and a bunch of columns with each day's data. The date columns all read in with "X" at the beginning of the variable name because R doesn't like variable names to start with numbers. We can use that to specify how to tidy the data. If you've tidied data in R for a while you might have used, melt/cast or gather/spread. The tidyverse has come out with a new way that is a bit more intuitive, [pivot_longer/pivot_wider](https://tidyr.tidyverse.org/articles/pivot.html).
+
+```{r tidyJonhsHopkins, warning = FALSE}
+cases <- covid19cases %>%
+  pivot_longer( cols = starts_with("X"), # I'm specifing the coluns that I want to tidy (use "-" to specify the columns you want to leave alone)
+                names_to = "date", # variable name for the variables column
+                names_prefix = "X", # let's get rid of the "X" so we can treat dates as dates
+                values_to = "confirmedCases") # variable name for the column that will hold the values
+
+tibble(cases)
+
+deaths <- covid19deaths %>%
+  pivot_longer( cols = starts_with("X"),
+                names_to = "date", 
+                names_prefix = "X",
+                values_to = "deaths")
+tibble(deaths)
+
+```
+#### Merge the cases and deaths datasets
+
+Both the cases and deaths data seem to match row by row, however I want to join based on a unique key rather than trusting that row 15873 in cases goes with row 15873 in deaths. To join we need to create a unique key for each observation. Initially I thought that Lat/Long would provide that but there were cruise ship observations with the same Lat/Long but different ships. The way that I figured this out was by joining on Lat/Long and seeing that the total number of observations in the new dataframe was larger than the originals. then I looked for duplicates. So we're going to create a new variable called "join" in both dataframes that is just pasting all of our location variables together.
+
+```{r mergeCasesDeaths, warning = FALSE}
+
+cases$join <- paste(cases$Province.State, cases$Country.Region ,cases$Lat, cases$Long, cases$date)
+deaths$join <- paste(deaths$Province.State, deaths$Country.Region,deaths$Lat, deaths$Long, deaths$date)
+
+tibble(cases)
+tibble(deaths)
+
+covid19 <- cases %>%
+  select(join, confirmedCases) %>%
+  left_join( deaths, by = "join") %>%
+  select(Province.State, Country.Region, Lat, Long, date, confirmedCases, deaths)
+
+# R thinks of dates as chr, let's specify they are dates
+
+covid19$date <- as.Date(covid19$date, format = "%m.%d.%y")
+```
+### Time to expore the data
+
+Now that the data is tidied* and joined, it's time to explore. 
+
+*Nearly tidied because the valued in confirmedCases and deaths are the same thing-counts of individuals. Depending on what you want to do with the data, you may way to tidy those further.
+
+```{r graphJohnsHopkins, warning = FALSE}
+#Plot the cases and deaths over time
+
+ggplot(data=covid19)+
+  geom_bar(aes(x=date, y=confirmedCases), stat="identity")+
+  geom_bar(aes(x=date, y=deaths), stat="identity", fill="red")
+
+```
+
+#### Kid1 summary data for the US and Canada
+
+I started working on this becasue Kid1 wanted the numbers for the US and Canada each day. You can chain together all commands and not make an object of just the US and Canada, but I like to check that I've changed the data the way I think I'm changing the data
+
+```{r USCanada, warning = FALSE}
+#check spelling/caps for countries
+# levels(as.factor(cases$Country.Region))
+
+usCanada <- covid19 %>%
+  filter(Country.Region %in% c("US", "Canada")) %>%
+  droplevels() %>%
+  group_by(date, Country.Region) %>%
+  summarise(confirmedCases = sum(confirmedCases),
+                 deaths = sum(deaths))
+```
+
+
+Write this daily data to a csv for Kid1 to open and paste into excel because he isn't interested in learning R yet.
+
+```{r USCanadaCSV, warning = FALSE}
+
+write.csv(usCanada, file="../../Shared/usCanadaDaily.csv")
+```
+
+I can't help but make a graph for him as well, because seeing data is fundimental to understanding the numbers
+```{r USCanadaScatter, warning = FALSE}
+
+
+ggplot(usCanada, aes(x=date, y=confirmedCases, color=Country.Region))+
+  geom_point()+
+  theme_bw()
+```
+
+Making the data fully tidy allows for other visualizations
+
+```{r USCanadaBar, warning = FALSE}
+
+usCanadaLong <- pivot_longer(usCanada, -c(date, Country.Region), names_to="caseType", values_to = "count")
+
+
+ggplot(usCanadaLong, aes(x=date, y=count, fill=caseType))+
+  geom_bar(stat="identity")+
+  facet_wrap(vars(Country.Region), scales = "free_y")+
+  theme_bw()
+
+```
+
+## US testing numbers compiled by Covid Project
+
+The lack of testing in the US is a critical concern in stopping the spread of the virus. And it's personally/professionally interesting because qPCR is something that we do in (MARS)[https://mars.uconn.edu] often. The (Covid Tracking Project)[https://covidtracking.com] is trying to compile all testing data, not just positives from each state.
+
+```{r covidProject, warning = FALSE}
+# Read in current *cumulative* data
+
+usDaily <- read.csv("https://covidtracking.com/api/states/daily.csv", header=T)
+
+usDaily$date <- as.Date(as.character(usDaily$date), format="%Y%m%d")
+```
+#### Positive rate
+
+Calculate the positive rate which is important for determining how prevelant cases are in the community. 
+```{r covidProjectPosRate, warning = FALSE}
+
+usDaily$posRate <- usDaily$positive/usDaily$total
+```
+
+We'll tidy the Covid Project data so we can plot it .
+
+```{r covidProjectTidy, warning = FALSE}
+usDailyLong <- pivot_longer(usDaily, -c(date, state, dateChecked), names_to = "testType", values_to = "count")
+
+# Again, I could do this filtering before each plot or I can make a separate object. I'm the new opject kind of R person.
+usDailyLongNoTotal <- usDailyLong %>%
+  filter(testType != "total") %>%
+  filter(testType != "posRate")
+
+# I want to set the order to display the results
+usDailyLongNoTotal$testType <- factor(usDailyLongNoTotal$testType, levels = c("negative", "pending", "positive", "hospitalized", "death"))
+
+# Also, want to set the color for each result type
+testType.col <- c("negative" = "grey", 
+                  "pending" = "lightgrey", 
+                  "positive" = "red", 
+                  "hospitalized" = "purple",
+                  "death" = "black")
+```
+
+#### Plot the total tests and their outcomes
+
+```{r covidProjectOutcomes, warning = FALSE}
+
+ggplot(usDailyLongNoTotal)+
+  geom_bar(stat="identity", aes(x=date, y=count,fill=testType))+
+  scale_fill_manual(values=testType.col)+
+  # scale_y_log10()+
+  theme_bw()+
+  ggtitle("Outcome of tests")
+```
+
+Testing is very patchy by state, so lets look at the positive rate through time for each state
+
+```{r covidProjectPosState, warning = FALSE}
+
+ggplot(usDaily, aes(x=date, y=posRate))+
+  geom_line()+
+  facet_wrap(~state)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+  ggtitle("Positive test rate by state")
+```
+
+Such wildly different positive rates are likley due to testing intensity. To make this more informative, I should divide # tests by state population. But that's a task for another day.
+
+```{r covidProjectTestingState, warning = FALSE}
+
+ggplot(usDaily, aes(x=date, y=total))+
+  geom_line()+
+  facet_wrap(~state)+
+  scale_y_log10()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+  ggtitle("Tests administered by state")
+```
+
+###Bringing it home. How is CT doing?
+
+```{r covidProjectCT, warning = FALSE}
+
+usDailyLongNoTotal %>%
+  filter(state == "CT") %>%
+ggplot()+
+  geom_bar(stat="identity", aes(x=date, y=count,fill=testType))+
+  scale_fill_manual(values=testType.col)+
+  # scale_y_log10()+
+  theme_bw()+
+  ggtitle("CT outcome of tests")
+ggsave(file="../../Shared/ctTestOutcome.jpg")
+
+
+usDaily %>%
+  filter(state == "CT") %>%
+  ggplot(aes(x=date, y=posRate))+
+  geom_line()+
+  theme_bw()+
+  ggtitle("CT positive test rate")
+
+```
+
+There was a big spike in positive rate March 18, which means they were only testing people who were likley sick. If we look at total tests administered, there's been a significant increase in testing since then.
+
+```{r covidProjectCTtests, warning = FALSE}
+usDaily %>%
+  filter(state == "CT") %>%
+  ggplot(aes(x=date, y=total))+
+  geom_line()+
+  ggtitle("CT test administered")
+
+```
