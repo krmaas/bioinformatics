@@ -90,9 +90,9 @@ covid19$date <- as.Date(covid19$date, format = "%m.%d.%y")
 ```
 ### Time to expore the data
 
-Now that the data is tidied* and joined, it's time to explore. 
+Now that the data is tidied and joined, it's time to explore. 
 
-*Nearly tidied because the valued in confirmedCases and deaths are the same thing-counts of individuals. Depending on what you want to do with the data, you may way to tidy those further.
+*Nearly tidied because the valued in confirmedCases and deaths are the same thing-counts of individuals. Depending on what you want to do with the data, you may way to tidy those further.*
 
 ```{r graphJohnsHopkins, warning = FALSE}
 #Plot the cases and deaths over time
