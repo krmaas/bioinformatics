@@ -176,8 +176,8 @@ usDailyLong <- pivot_longer(usDaily, -c(date, state, dateChecked), names_to = "t
 
 # Again, I could do this filtering before each plot or I can make a separate object. I'm the new opject kind of R person.
 usDailyLongNoTotal <- usDailyLong %>%
-  filter(testType != "total") %>%
-  filter(testType != "posRate")
+  filter(testType %in% c("negative", "pending", "positive", "hospitalized", "death")) 
+
 
 # I want to set the order to display the results
 usDailyLongNoTotal$testType <- factor(usDailyLongNoTotal$testType, levels = c("negative", "pending", "positive", "hospitalized", "death"))
@@ -200,6 +200,18 @@ ggplot(usDailyLongNoTotal)+
   # scale_y_log10()+
   theme_bw()+
   ggtitle("Outcome of tests")
+
+usDailyLongNoTotal%>%
+  filter(testType %in% c("positive", "hospitalized", "death"))%>% 
+ggplot()+
+  geom_bar(stat="identity", aes(x=date, y=count,fill=testType))+
+  scale_fill_manual(values=testType.col)+
+  # scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+              # labels = scales::trans_format("log10", scakes::math_format(10^.x)))+
+  scale_y_log10()+
+  theme_bw()+
+  annotation_logticks() +
+  ggtitle("Positive cases")
 ```
 
 Testing is very patchy by state, so lets look at the positive rate through time for each state
