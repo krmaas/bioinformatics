@@ -172,7 +172,14 @@ usDaily$posRate <- usDaily$positive/usDaily$total
 We'll tidy the Covid Project data so we can plot it .
 
 ```{r covidProjectTidy, warning = FALSE}
-usDailyLong <- pivot_longer(usDaily, -c(date, state, dateChecked), names_to = "testType", values_to = "count")
+
+usDailyIncrease <- usDaily %>%
+  select(c(date, state, deathIncrease, hospitalizedIncrease, negativeIncrease, positiveIncrease, totalTestResultsIncrease))
+
+usDaily <- usDaily %>%
+  select(c(date, state, positive, negative, hospitalized, death, posRate, total))
+
+usDailyLong <- pivot_longer(usDaily, -c(date, state), names_to = "testType", values_to = "count")
 
 # Again, I could do this filtering before each plot or I can make a separate object. I'm the new opject kind of R person.
 usDailyLongNoTotal <- usDailyLong %>%
@@ -238,6 +245,46 @@ ggplot(usDaily, aes(x=date, y=total))+
   theme(axis.text.x = element_text(angle = 60, hjust = 1))+
   ggtitle("Tests administered by state")
 ```
+
+#### Plotting the increases
+
+```{r increases}
+usDailyIncreaselong<- usDailyIncrease%>%
+  pivot_longer(-c(date, state), names_to = "testType", values_to = "count")%>%
+  filter(testType %in% c("deathIncrease", "positiveIncrease", "hospitalizedIncrease"))
+
+usTotalsIncrease <- usDailyIncrease%>%
+  group_by(date)%>%
+  summarise(deathIn = sum(deathIncrease),
+            hospitalizedIn = sum(hospitalizedIncrease),
+            positiveIn = sum(positiveIncrease),
+            negativeIn = sum(negativeIncrease),
+            totalTestIn = sum(totalTestResultsIncrease))
+  
+ggplot()+
+  geom_bar(data=usDailyIncreaselong,stat="identity", aes(x=date, y=count,fill=testType))+
+  # scale_fill_manual(values=testType.col)+
+  theme_bw()+
+  ggtitle("Daily outcome of tests, not cumulative")
+
+ggplot(data=usTotalsIncrease, aes(x=date, y=negativeIn))+
+  geom_line()+
+  theme_bw()+
+  ggtitle("Daily increase in negative tests, not cumulative")
+
+
+ggplot(usDailyIncrease)+
+  geom_point(aes(x=date, y=totalTestResultsIncrease))+
+  facet_wrap(~state)+
+  theme_bw()+
+  # scale_y_log10()+
+  ggtitle("Daily increase in tests")
+
+
+
+```
+
+
 
 ###Bringing it home. How is CT doing?
 
