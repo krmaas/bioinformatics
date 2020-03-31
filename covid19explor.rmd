@@ -9,6 +9,7 @@ output:
     toc_float: true
 ---
 
+# NOT UPDATING, SEE krmaas.github.io/Covid19 for updates
 ## Set up session
 Public data on the spread of coronavirus has been compiled by Johns Hopkins CSSE for their excellent [dashboard](https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6). They are posting the [raw data on github](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data). I'm writing this up because getting data from GitHub into R is pretty easy, but I have to look it up each time. 
 
