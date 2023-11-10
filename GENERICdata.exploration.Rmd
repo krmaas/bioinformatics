@@ -1,0 +1,487 @@
+---
+title: "PROJECT.data.exploration"
+author: "Kendra Maas"
+date: '`r Sys.Date()`'
+output: 
+  html_document:
+    toc: true # table of content true
+    depth: 3  # upto three depths of headings (specified by #, ## and ###)
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# install.packages("ggplot2")
+# install.packages("vegan")
+# install.packages("ecodist")
+# install.packages("RColorBrewer")
+# install.packages("tidyr")
+# install.packages("tidyverse")
+# install.packages("knitr")
+# install.packages("indicspecies")
+# install.packages("devtools")
+install.packages("vegan3d")
+
+library(ggplot2)
+library(vegan)
+library(ecodist)
+library(RColorBrewer)
+library(tidyr)
+library(tidyverse)
+library(reshape2)
+library(plyr)
+library(indicspecies)
+library(devtools)
+library(vegan3d)
+# devtools::install_github("AckerDWM/gg3D")
+
+# library(gg3D)
+
+ggplotRegression <- function (fit) {
+    
+    # require(ggplot2)
+    
+    ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+        geom_point() +
+        stat_smooth(method = "lm", col = "red") +
+        labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                           "Intercept =",signif(fit$coef[[1]],5 ),
+                           " Slope =",signif(fit$coef[[2]], 5),
+                           " P =",signif(summary(fit)$coef[2,4], 5)))
+}
+
+parseDistanceDF = function(phylip_file) {
+
+   # Read the first line of the phylip file to find out how many sequences/samples it contains
+    temp_connection = file(phylip_file, 'r')
+    len = readLines(temp_connection, n=1)
+    len = as.numeric(len)
+    len = len +1
+    close(temp_connection)
+   
+   
+    phylip_data = read.table(phylip_file, fill=T, row.names=1, skip=1, col.names=1:len)
+    colnames(phylip_data) <- row.names(phylip_data)
+    return(phylip_data)
+}
+
+
+
+
+```
+
+##Read in data
+
+```{r read in data}
+
+    otu <- read.table(file ="../PROJECT.trim.contigs.good.unique.good.filter.precluster.denovo.vsearch.pick.opti_mcc.0.03.subsample.shared", header=T, stringsAsFactors = FALSE, row.names=2)
+otu <- select(otu, -label, -numOtus)
+
+
+taxa <- read.table(textConnection(gsub("\\(.+?\\);", "\t", readLines("../PROJECT.trim.contigs.good.unique.good.filter.precluster.denovo.vsearch.pick.opti_mcc.0.03.cons.taxonomy"))), col.names=c("OTU", "Size", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus"), skip=1)
+taxa <- taxa[taxa$OTU %in% names(otu),]
+
+# get OTU abundance for this subsampling
+sub.size <- data.frame(OTU = colnames(otu), size.sub = colSums(otu))
+
+taxa <- full_join(taxa, sub.size, by = "OTU", copy=TRUE)
+
+# selected taxa for stacked bars, you have to manupilate tax.summary to create this file
+taxa.bars <- read.table(file="../PROJECT.taxabars.csv", header=T, sep=",")
+
+
+
+maxab <- apply(otu, 2, max)
+n1 <- names(which(maxab < 50))
+otu.ab <- otu[,-which(names(otu) %in% n1)]
+taxa.ab <- taxa[-which(taxa$OTU %in% n1),]
+
+
+
+# Alpha diversity
+
+alpha <- read.table(file="../PROJECT.trim.contigs.good.unique.good.filter.precluster.denovo.vsearch.pick.opti_mcc.groups.ave-std.summary", header=T, stringsAsFactors = FALSE)
+alpha <- filter(alpha, label== "0.03" & method == "ave")
+
+# Beta diversity
+jc <- parseDistanceDF("../PROJECT.trim.contigs.good.unique.good.filter.precluster.denovo.vsearch.pick.opti_mcc.jest.0.03.lt.ave.dist")
+bc <- parseDistanceDF("../PROJECT.trim.contigs.good.unique.good.filter.precluster.denovo.vsearch.pick.opti_mcc.braycurtis.0.03.lt.ave.dist")
+tyc <- parseDistanceDF("../PROJECT.trim.contigs.good.unique.good.filter.precluster.denovo.vsearch.pick.opti_mcc.thetayc.0.03.lt.ave.dist")
+
+# experimental data #
+expdata <- read.table(file="../PROJECTenvData.csv", sep=",", header=T, stringsAsFactors = TRUE)
+
+
+alpha.expdata <- left_join(alpha, expdata, by="group")
+
+
+zymo <- alpha.expdata$treatment != "control"
+alpha.expdata <- alpha.expdata[zymo,]
+alpha.expdata <- droplevels.data.frame(alpha.expdata)
+jc <- jc[zymo, zymo]
+bc <- bc[zymo, zymo]
+tyc <- tyc[zymo, zymo]
+otu <- otu[zymo,]
+taxa.bars <- taxa.bars[zymo,]
+
+taxa.bars <- left_join(taxa.bars, expdata, by ="group")
+taxa.bars$treatment <- factor(taxa.bars$treatment)
+
+
+```
+
+##Alpha Diversity
+Boxplots of alpha diversity measures (diversity within a sample)
+
+I'm adding the actual data points to the first one just to demonstrate the possiblility. Sometimes I like it in addition to the boxplot
+
+```{r alpha diversity Treatment}
+# alpha diversity (diversity within a sample)
+
+xlab <- paste(levels(as.factor(alpha.expdata$TREATMENT)),"\n(N=", table(alpha.expdata$TREATMENT),")", sep="")
+
+alpha.expdata %>%
+ggplot( (aes(x=TREATMENT, y=sobs)))+
+    geom_boxplot(varwidth = T, outlier.shape = NA)+
+    geom_jitter(width=0.2)+
+    scale_x_discrete(labels=xlab)+
+    theme_bw()+
+    ggtitle("Bacterial Richness by treatment")+
+    labs(y="Species Observed", x="")
+ggsave(file="richnessTREATMENT.jpg")
+
+alpha.expdata %>%
+ggplot( (aes(x=TREATMENT, y=sobs)))+
+    geom_boxplot(varwidth = T, outlier.shape = NA)+
+    geom_jitter(width=0.2)+
+    facet_grid(.~TREATMENT2)+
+    # scale_x_discrete(labels=xlab)+
+    theme_bw()+
+    ggtitle("Bacterial Richness by treatment")+
+    labs(y="Species Observed", x="")
+ggsave(file="richnesstreatment.jpg")
+
+
+xlab <- paste(levels(as.factor(alpha.expdata$TREATMENT)),"\n(N=", table(alpha.expdata$TREATMENT),")", sep="")
+
+alpha.expdata %>%
+ggplot( (aes(x=TREATMENT, y=shannon)))+
+    geom_boxplot(varwidth = T, outlier.shape = NA)+
+    geom_jitter(width=0.2)+
+    # facet_grid(.~TREATMENT2)+
+    scale_x_discrete(labels=xlab)+
+    theme_bw()+
+    ggtitle("Bacterial diversity by treatment")+
+    labs(y="Shannon", x="")
+ggsave(file="shannonTREATMENT.jpg")
+
+
+alpha.expdata %>%
+ggplot( (aes(x=TREATMENT, y=shannon)))+
+    geom_boxplot(varwidth = T, outlier.shape = NA)+
+    geom_jitter(width=0.2)+
+    facet_grid(.~TREATMENT2)+
+    # scale_x_discrete(labels=xlab)+
+    theme_bw()+
+    ggtitle("Bacterial diversity by treatment")+
+    labs(y="Shannon", x="")
+ggsave(file="shannontreatment.jpg")
+
+
+res.aov <- aov(shannon~TREATMENT, data=alpha.expdata)
+summary(res.aov)
+TukeyHSD(res.aov)
+
+
+
+xlab <- paste(levels(as.factor(alpha.expdata$TREATMENT)),"\n(N=", table(alpha.expdata$TREATMENT),")", sep="")
+
+alpha.expdata %>%
+ggplot( (aes(x=TREATMENT, y=invsimpson)))+
+    geom_boxplot(varwidth = T, outlier.shape = NA)+
+    geom_jitter(width=0.2)+
+    # facet_grid(.~TREATMENT2)+
+    scale_x_discrete(labels=xlab)+
+    theme_bw()+
+    ggtitle("Bacterial diversity by treatment")+
+    labs(y="Inverse Simpson", x="")
+ggsave(file="simpsonTREATMENT.jpg")
+
+alpha.expdata %>%
+ggplot( (aes(x=TREATMENT, y=invsimpson)))+
+    geom_boxplot(varwidth = T, outlier.shape = NA)+
+    geom_jitter(width=0.2)+
+    facet_grid(.~TREATMENT2)+
+    scale_x_discrete(labels=xlab)+
+    theme_bw()+
+    ggtitle("Bacterial diversity by treatment")+
+    labs(y="Inverse Simpson", x="")
+ggsave(file="simpsontreatment.jpg")
+
+
+
+res.aov <- aov(invsimpson~TREATMENT, data=alpha.expdata)
+summary(res.aov)
+TukeyHSD(res.aov)
+
+```
+
+##Beta Diversity 
+
+Non-metric multidimensional scaling to visualize between sample diversity
+
+###jc= Jaccard dissimilarity measure presence absence
+```{r beta div nms jc}
+
+jc.nms <- metaMDS(as.dist(jc), k=2, trymin=50, trymax=500, wascores=F, trace=FALSE)
+jc.points <- data.frame(jc.nms$points)
+jc.plot <- ggplot(jc.points, aes(x=MDS1, y=MDS2,label=rownames(jc)))
+
+x <- max(jc.points$MDS1)/1.5
+y <- min(jc.points$MDS2)
+
+
+jc.plot +  geom_point(aes(shape = factor(alpha.expdata$TREATMENT2), fill=factor(alpha.expdata$TREATMENT)), size=5)+
+    # geom_text()+
+    scale_shape_manual(values = c(24, 21))+
+    scale_fill_brewer(palette = "YlGnBu")+
+    # scale_fill_manual(values=treat.col)+
+    theme_bw()+
+    annotate("text", x, y, label=paste("stress = ", round(jc.nms$stress, digits = 3)))+
+    labs(x="", y="")+
+    ggtitle("Jaccard")+
+    guides(fill=guide_legend(override.aes = list(shape=21)))
+ggsave(file="jc.treatment.nms.jpg")
+
+
+
+```
+
+###bc= Bray-Curtis dissimilarity measure that incoorporates abundance
+```{r beta div nms bc}
+
+## Whole dataset
+
+bc.nms <- metaMDS(as.dist(bc), k=2, try=50, trymax=500, wascores=F, trace=FALSE)
+bc.points <- data.frame(bc.nms$points)
+bc.plot <- ggplot(bc.points, aes(x=MDS1, y=MDS2,label=rownames(bc)))
+
+
+x <- max(bc.points$MDS1)/1.5
+y <- min(bc.points$MDS2)
+
+
+bc.plot +   geom_point(aes(shape = factor(alpha.expdata$TREATMENT2), fill=factor(alpha.expdata$TREATMENT)), size=5)+
+    theme_void()+
+    # axes_3D()+
+    # stat_3D()+
+    # geom_text()+
+    scale_shape_manual(values = c(24, 21), name="TREATMENT2",labels = c("TREATMENT2", "Unchallenged"))+
+    scale_fill_brewer(palette = "YlGnBu", name = "Linalool Levels")+
+    # scale_fill_manual(values=treat.col)+
+    stat_ellipse(aes(color=alpha.expdata$TREATMENT2))+
+    scale_color_manual(values=c("black", "black"), , guide = 'none')+
+    theme_bw()+
+    annotate("text", x, y, label=paste("stress = ", round(bc.nms$stress, digits = 3)))+
+    labs(x="", y="")+
+    guides(fill=guide_legend(override.aes = list(shape=21)))+
+     ggtitle("Bray Curtis")
+
+ggsave(file="bc.treatment.nms.jpg")
+
+
+
+```
+
+
+
+###tyc= Theta YC dissimilarity measure that incoorporates abundance
+```{r beta div nms tyc}
+
+## Whole dataset
+
+tyc.nms <- metaMDS(as.dist(tyc), k=2, trymin=50, trymax=500, wascores=F, trace=FALSE)
+tyc.points <- data.frame(tyc.nms$points)
+tyc.plot <- ggplot(tyc.points, aes(x=MDS1, y=MDS2,label=rownames(tyc)))
+
+x <- max(tyc.points$MDS1)/1.5
+y <- min(tyc.points$MDS2)
+
+
+tyc.plot +    geom_point(aes(shape = factor(alpha.expdata$TREATMENT2), fill=factor(alpha.expdata$TREATMENT)), size=5)+
+    # geom_text()+
+    scale_shape_manual(values = c(24, 21), name="TREATMENT2",labels = c("TREATMENT2", "Unchallenged"))+
+    scale_fill_brewer(palette = "YlGnBu", name = "Linalool Levels")+
+    # scale_fill_manual(values=treat.col)+
+    stat_ellipse(aes(color=alpha.expdata$TREATMENT2))+
+    scale_color_manual(values=c("black", "black"), , guide = 'none')+
+    theme_bw()+
+    annotate("text", x, y, label=paste("stress = ", round(tyc.nms$stress, digits = 3)))+
+    labs(x="", y="")+
+    guides(fill=guide_legend(override.aes = list(shape=21)))+
+     ggtitle("Theta YC")
+
+ggsave(file="tyc.treatment.nms.jpg")
+
+
+
+```
+
+###Permanova
+```{r beta div permanova}
+
+permanova <- adonis2(as.dist(jc)~alpha.expdata$TREATMENT2 *alpha.expdata$TREATMENT, perm=999, rm.na=TRUE)
+permanova
+
+
+permanova <- adonis2(as.dist(bc)~alpha.expdata$TREATMENT2*alpha.expdata$TREATMENT, perm=999, rm.na=TRUE)
+permanova
+
+
+permanova <- adonis2(as.dist(tyc)~alpha.expdata$treatment, perm=999, rm.na=TRUE)
+permanova
+
+
+```
+
+
+##Indicator species No control
+
+Method for pulling out the species that coorespond with grouping variable (i.e. Treatment). See DeCaceres and Legendre
+2009 for details.
+
+this is failing, will troubleshoot in the future
+
+```{r indicator species}
+# 
+# # otu[,-1] tells multipatt to ignore the first column which holds the name
+# 
+# 
+# indic <- multipatt(otu[,-1], alpha.expdata$treatment,control = how(nperm=99))
+# 
+# summary(indic)
+# 
+# write.csv(file="indicator.species.csv",indic$sign%>%
+#     rownames_to_column(var = "OTU")%>%
+#     mutate(p.fdr = round(p.adjust(p.value, "fdr"),3))%>%
+#     right_join(taxa, by = "OTU")%>%
+#     # filter(p.fdr < 0.5) %>%
+#     arrange(index))
+# 
+# 
+# sig.otus <- indic$sign%>%
+#     add_rownames(var="OTU")%>%
+#     filter(p.adjust(p.value,"fdr") < 0.05)
+# 
+# #### Only very low abundance OTUs were pulled as indicators
+# 
+# # otu.indic <- otu[,which(names(otu) %in% sig.otus$OTU)]
+# # taxa.indic <- taxa[which(taxa$OTU %in% sig.otus$OTU),]
+```
+
+
+###Taxa Barplot
+```{r Barplot, fig.height=10, fig.width=8}
+
+ taxa.col <- c(
+     "Firmicutes_other"="#ff7f00", #orange brown
+     "Lactobacillus"="#fdbf6f", #orange
+     "Bifidobacteriaceae"="#79C360", #green
+     "Pseudomonadaceae"="#A6CEE3", #lightest blue
+     "Lactobacillus"="#7DB4D5", #second lightest blue
+     "Enterobacteriaceae_other"="#08519c", # darkest blue
+     "Salmonella"="#5C9FC9", #middle blue
+     "Clostridia"="#3A89BD", #second darkest blue
+     "Proteobacteria_other" = "#043363", # really dark blue
+     "Actinobacteriota_other"="#4a773a", #dark green
+     "Escherichia-Shigella"="#fdae6b", #light orange
+     "Bacteria_other"="#d3d3d3", #grey
+     "Bacteroidetes"="#6a3d9a") #black
+
+
+ tax <- melt(taxa.bars, id.vars = c("group", "treatment", "TREATMENT2",  "TREATMENT3", "TREATMENT4", "day" ))
+ 
+ 
+ 
+ ##check that melt occured the way you expected and that factors are factors
+ str(tax)
+
+ 
+ 
+ tax2 <- aggregate(value~variable+treatment+TREATMENT2, data=tax, FUN=sum)
+
+ 
+
+ggplot(tax2,  aes( y=value, x=factor(treatment), color=NULL, fill=factor(variable), order=-as.numeric(variable)))+ #order=- makes the stack the same order as the legend
+   geom_bar(position="fill", stat="identity")+
+     xlab("Treatment")+
+     ylab("Percent total community")+
+     facet_grid(TREATMENT2~.)+
+     scale_fill_manual(values=taxa.col, guide=guide_legend(title="Taxonomic level"))+
+     theme_bw()
+ ggsave(file="barplot.faceted.jpg", height=5, width=5, dpi=600)
+
+ 
+# separate out unchallenged
+ tax2 %>%
+     filter(TREATMENT2 == "Unchallenged")%>%
+ggplot(  aes( y=value, x=factor(treatment), color=NULL, fill=factor(variable), order=-as.numeric(variable)))+ #order=- makes the stack the same order as the legend
+   geom_bar(position="fill", stat="identity")+
+     xlab("Treatment")+
+     ylab("Percent total community")+
+     scale_fill_manual(values=taxa.col, guide=guide_legend(title="Taxonomic level"))+
+     theme_bw()
+ ggsave(file="barplot.unchallenged.jpg", height=5, width=5, dpi=600)
+
+# separate out challenged
+ tax2 %>%
+     filter(TREATMENT2 == "SE")%>%
+ggplot(  aes( y=value, x=factor(treatment), color=NULL, fill=factor(variable), order=-as.numeric(variable)))+ #order=- makes the stack the same order as the legend
+   geom_bar(position="fill", stat="identity")+
+     xlab("Treatment")+
+     ylab("Percent total community")+
+     scale_fill_manual(values=taxa.col, guide=guide_legend(title="Taxonomic level"))+
+     theme_bw()
+ ggsave(file="barplot.challenged.jpg", height=5, width=5, dpi=600)
+
+ 
+ #add in day
+ tax2 <- aggregate(value~variable+treatment+TREATMENT2+day, data=tax, FUN=sum)
+
+ 
+
+ggplot(tax2,  aes( y=value, x=factor(TREATMENT2), color=NULL, fill=factor(variable), order=-as.numeric(variable)))+ #order=- makes the stack the same order as the legend
+   geom_bar(position="fill", stat="identity")+
+     xlab("Treatment")+
+     ylab("Percent total community")+
+     facet_grid(treatment~day)+
+     scale_fill_manual(values=taxa.col, guide=guide_legend(title="Taxonomic level"))+
+     theme_bw()
+ ggsave(file="barplot.faceted.day.treatment.jpg", height=5, width=5, dpi=600)
+
+ 
+# separate out unchallenged
+ tax2 %>%
+     filter(TREATMENT2 == "Unchallenged")%>%
+ggplot(  aes( y=value, x=factor(day), color=NULL, fill=factor(variable), order=-as.numeric(variable)))+ #order=- makes the stack the same order as the legend
+   geom_bar(position="fill", stat="identity")+
+     xlab("Treatment")+
+          facet_grid(.~treatment)+
+     ylab("Percent total community")+
+     scale_fill_manual(values=taxa.col, guide=guide_legend(title="Taxonomic level"))+
+     theme_bw()
+ ggsave(file="barplot.unchallenged.day.jpg", height=5, width=5, dpi=600)
+ 
+ # separate out challenged
+ tax2 %>%
+     filter(TREATMENT2 == "SE")%>%
+ggplot(  aes( y=value, x=factor(day), color=NULL, fill=factor(variable), order=-as.numeric(variable)))+ #order=- makes the stack the same order as the legend
+   geom_bar(position="fill", stat="identity")+
+     xlab("Treatment")+
+          facet_grid(.~treatment)+
+     ylab("Percent total community")+
+     scale_fill_manual(values=taxa.col, guide=guide_legend(title="Taxonomic level"))+
+     theme_bw()
+ ggsave(file="barplot.challenged.day.jpg", height=5, width=5, dpi=600)
+
+```
