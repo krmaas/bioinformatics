@@ -1,0 +1,325 @@
+---
+title: "dada2 nanopore"
+output: html_document
+date: "2024-05-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# if (!require("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# BiocManager::install(version = "3.16")
+# BiocManager::install(c("dada2","phyloseq" ))
+# install.packages(c("Biostrings", "ShortRead","ggplot2","reshape2","gridExtra"))
+# install.packages("tidyverse")
+# install.packages("dplyr")
+
+library(dada2);packageVersion("dada2")
+library(Biostrings); packageVersion("Biostrings")
+library(ShortRead); packageVersion("ShortRead")
+library(ggplot2); packageVersion("ggplot2")
+library(reshape2); packageVersion("reshape2")
+library(gridExtra); packageVersion("gridExtra")
+library(phyloseq); packageVersion("phyloseq")
+library(tidyverse)
+library(dplyr)
+
+
+
+
+```
+
+
+
+```{r load data}
+path1 <- "../duplexfastq/" # CHANGE ME to location of the Second Replicate fastq files
+path.out <- "FiguresDuplex"
+path.rds <- "RDSduplex"
+fns1 <- list.files(path1, pattern="fastq", full.names=TRUE)
+F27 <- "AGRGTTYGATYMTGGCTCAG"
+R1391 <- "GACGGGCGGTGWGTRCA"
+rc <- dada2:::rc
+theme_set(theme_bw())
+genusPalette <- c(Bacillus="#e41a1c", Enterococcus="#377eb8", Escherichia="#4daf4a", Lactobacillus="#984ea3",
+                  Listeria="#ff7f00", Pseudomonas="#ffff33", Salmonella="#a65628", Staphylococcus="#f781bf")
+
+allOrients <- function(primer) {
+    # Create all orientations of the input sequence
+    require(Biostrings)
+    dna <- DNAString(primer)  # The Biostrings works w/ DNAString objects rather than character vectors
+    orients <- c(Forward = dna, Complement = Biostrings::complement(dna), Reverse = Biostrings::reverse(dna),
+        RevComp = Biostrings::reverseComplement(dna))
+    return(sapply(orients, toString))  # Convert back to character vector
+}
+FWD.orients <- allOrients(F27)
+REV.orients <- allOrients(R1391)
+FWD.orients
+REV.orients
+
+
+
+
+```
+
+##remove primers and filter
+
+Initially used 
+>prim1 <- removePrimers(fns1, nops1, primer.fwd=F27, primer.rev=dada2:::rc(R1391), orient=TRUE)
+
+which removed 99% of data
+
+
+```{r clean, echo=FALSE}
+
+
+
+nops1 <- file.path(path1, "noprimers", basename(fns1))
+
+
+prim3 <- removePrimers(fns1, nops1, primer.fwd=F27, primer.rev=dada2:::rc(R1391), orient=TRUE, max.mismatch=5)
+
+
+primerHits <- function(primer, fn) {
+    # Counts number of reads in which the primer is found
+    nhits <- vcountPattern(primer, sread(readFastq(fn)), fixed = FALSE)
+    return(sum(nhits > 0))
+}
+
+# checking number of primer hits on Gut Microbiome mock community
+
+rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = nops1[[3]]), FWD.ReverseReads = sapply(FWD.orients,
+    primerHits, fn = nops1[[3]]), REV.ForwardReads = sapply(REV.orients, primerHits,
+    fn = nops1[[3]]))
+
+
+
+filts1 <- file.path(path1, "noprimers", "filtered", basename(fns1))
+##doesn't work
+# plotQualityProfile(filts1[3:5])
+# ggsave(filename = "primerQualityMock.pdf")
+# plotQualityProfile(filts1)
+# ggsave(filename = "primerQualityControls.pdf")
+
+lens.fn <- lapply(filts1, function(fn) nchar(getSequences(fn)))
+lens <- do.call(c, lens.fn)
+hist(lens, 100)
+track1 <- filterAndTrim(nops1, filts1, minQ=3, minLen=1000, maxLen=1450, maxN=0, rm.phix=FALSE, maxEE=10)
+
+# # checking number of primer hits on Gut Microbiome mock community after cleaning
+# 
+# rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = filts1[[3]]), FWD.ReverseReads = sapply(FWD.orients,
+#     primerHits, fn = filts1[[3]]), REV.ForwardReads = sapply(REV.orients, primerHits,
+#     fn = filts1[[3]]))
+
+track1
+
+plotQualityProfile(filts1[3:5])
+ggsave(filename = "filteredPrimer5Maxee10QualityMock.pdf")
+plotQualityProfile(filts1)
+ggsave(filename = "filteredPrimer5Maxee10QualityControls.pdf")
+
+```
+
+
+```{r dada2}
+
+# dereplicate
+
+drp <- derepFastq(filts1, verbose=TRUE)
+
+# learn errors
+err1 <- learnErrors(drp, errorEstimationFunction=PacBioErrfun, BAND_SIZE=32, multithread=TRUE)
+#saveRDS(err1, file.path(path.rds, "duplexcontrols.Primer5Maxee10_err1.rds"))
+
+plotErrors(err1)
+ggsave("duplexerrors.Primer5Maxee10.pdf")
+
+# denoise
+dd1 <- dada(drp, err=err1, BAND_SIZE=32, multithread=TRUE)
+saveRDS(dd1, file.path(path.rds, "duplexcontrols.Primer5Maxee10_dd1.rds"))
+
+cbind(ccs=prim3[,1], primers=prim3[,2], filtered=track1[,2], denoised=sapply(dd1, function(x) sum(x$denoised)))
+
+st1 <- makeSequenceTable(dd1); dim(st1)
+
+#assign taxonomy
+
+tax1 <- assignTaxonomy(st1, "../dada2/silva_nr99_v138.1_train_set.fa.gz", multithread=TRUE) # Slowest part
+tax1[,"Genus"] <- gsub("Escherichia/Shigella", "Escherichia", tax1[,"Genus"]) # Reformat to be compatible with other data sources
+head(unname(tax1))
+
+#chimera check
+
+bim1 <- isBimeraDenovo(st1, minFoldParentOverAbundance=3.5)
+table(bim1)
+
+saveRDS(st1, file.path(path.rds, "controls.Primer5Maxee10_st2.rds"))
+saveRDS(tax1, file.path(path.rds, "controls.Primer5Maxee10_Silva138.rds"))
+
+```
+
+
+```{r rerun lower maxee}
+
+filts1 <- file.path(path1, "noprimers", "filtered", basename(fns1))
+
+
+track2 <- filterAndTrim(nops1, filts1, minQ=3, minLen=1000, maxLen=1450, maxN=0, rm.phix=FALSE, maxEE=5)
+
+# checking number of primer hits on Gut Microbiome mock community after cleaning
+
+rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = filts1[[3]]), FWD.ReverseReads = sapply(FWD.orients,
+    primerHits, fn = filts1[[3]]), REV.ForwardReads = sapply(REV.orients, primerHits,
+    fn = filts1[[3]]))
+
+track2
+
+plotQualityProfile(filts1[18:20])
+ggsave(filename = "duplexmaxee5filteredQualityMock.pdf")
+plotQualityProfile(filts1)
+ggsave(filename = "duplexmaxee5filteredQualityControls.pdf")
+
+```
+
+
+```{r dada2}
+
+# dereplicate
+
+drp2 <- derepFastq(filts1, verbose=TRUE)
+
+# learn errors
+err2 <- learnErrors(drp2, errorEstimationFunction=PacBioErrfun, BAND_SIZE=32, multithread=TRUE)
+saveRDS(err2, file.path(path.rds, "duplexcontrols.maxee5_err1.rds"))
+
+plotErrors(err2)
+ggsave("duplexerrors.maxee5.pdf")
+
+
+# denoise
+dd2 <- dada(drp2, err=err2, BAND_SIZE=32, multithread=TRUE)
+saveRDS(dd2, file.path(path.rds, "duplexcontrols.maxee5_dd1.rds"))
+
+cbind(ccs=prim3[,1], primers=prim3[,2], filtered=track2[,2], denoised=sapply(dd2, function(x) sum(x$denoised)))
+
+st2 <- makeSequenceTable(dd2); dim(st2)
+
+#assign taxonomy
+
+tax2 <- assignTaxonomy(st2, "../dada2/silva_nr99_v138.1_train_set.fa.gz", multithread=TRUE) # Slowest part
+tax2[,"Genus"] <- gsub("Escherichia/Shigella", "Escherichia", tax2[,"Genus"]) # Reformat to be compatible with other data sources
+head(unname(tax2))
+
+#chimera check
+
+bim2 <- isBimeraDenovo(st2, minFoldParentOverAbundance=3.5)
+table(bim2)
+
+saveRDS(st2, file.path(path.rds, "duplexcontrols.maxee5_st2.rds"))
+saveRDS(tax2, file.path(path.rds, "duplexcontrols.maxee5_Silva138.rds"))
+
+```
+
+```{r rerun higher maxee}
+
+filts1 <- file.path(path1, "noprimers", "filtered", basename(fns1))
+
+
+track2 <- filterAndTrim(nops1, filts1, minQ=3, minLen=1000, maxLen=1450, maxN=0, rm.phix=FALSE, maxEE=15)
+
+# checking number of primer hits on Gut Microbiome mock community after cleaning
+
+rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = filts1[[3]]), FWD.ReverseReads = sapply(FWD.orients,
+    primerHits, fn = filts1[[3]]), REV.ForwardReads = sapply(REV.orients, primerHits,
+    fn = filts1[[3]]))
+
+track2
+
+plotQualityProfile(filts1[18:20])
+ggsave(filename = "duplexmaxee15filteredQualityMock.pdf")
+plotQualityProfile(filts1)
+ggsave(filename = "duplexmaxee15filteredQualityControls.pdf")
+
+```
+
+
+```{r dada2 ee5}
+
+# dereplicate
+
+drp2 <- derepFastq(filts1, verbose=TRUE)
+
+# learn errors
+err2 <- learnErrors(drp2, errorEstimationFunction=PacBioErrfun, BAND_SIZE=32, multithread=TRUE)
+saveRDS(err2, file.path(path.rds, "duplexcontrols.maxee15_err1.rds"))
+
+plotErrors(err2)
+ggsave("duplexerrors.maxee15.pdf")
+
+
+# denoise
+dd2 <- dada(drp2, err=err2, BAND_SIZE=32, multithread=TRUE)
+saveRDS(dd2, file.path(path.rds, "duplexcontrols.maxee15_dd1.rds"))
+
+cbind(ccs=prim3[,1], primers=prim3[,2], filtered=track2[,2], denoised=sapply(dd2, function(x) sum(x$denoised)))
+
+st2 <- makeSequenceTable(dd2); dim(st2)
+
+#assign taxonomy
+
+tax2 <- assignTaxonomy(st2, "../dada2/silva_nr99_v138.1_train_set.fa.gz", multithread=TRUE) # Slowest part
+tax2[,"Genus"] <- gsub("Escherichia/Shigella", "Escherichia", tax2[,"Genus"]) # Reformat to be compatible with other data sources
+head(unname(tax2))
+
+#chimera check
+
+bim2 <- isBimeraDenovo(st2, minFoldParentOverAbundance=3.5)
+table(bim2)
+
+saveRDS(st2, file.path(path.rds, "duplexcontrols.maxee15_st2.rds"))
+saveRDS(tax2, file.path(path.rds, "duplexcontrols.maxee15_Silva138.rds"))
+
+```
+
+```{r summarize}
+dada2seqssummary <- read.csv(file="cleaningDataLoss.csv")
+
+dada2seqssummary%>%
+
+    filter(SampleID != "no") %>%
+ggplot()+
+    geom_boxplot( aes(x=SampleID, y=matchPrimer))+
+    labs(y="% Seqs match primer")+
+    theme(axis.text.x = element_text(angle=45, vjust=.8, hjust=1), axis.title.x = element_blank())+
+    ylim(0,.7)
+ggsave("matchedprimer.jpg")
+
+dada2seqssummary%>%
+    filter(SampleID != "no") %>%
+
+ggplot()+
+    geom_boxplot( aes(x=SampleID, y=filteredpercent))+
+    
+    labs(y="% Seqs pass Filter")+
+    theme(axis.text.x = element_text(angle=45, vjust=.8, hjust=1), axis.title.x = element_blank())+
+    ylim(0,.7)
+ggsave("passedFilter.jpg")
+
+
+
+
+```
+
+
+```{r mock error rate}
+unqs.mock <- st1[18:20,]
+unqs.mock <- sort(unqs.mock[unqs.mock>0], decreasing=TRUE) # Drop ASVs absent in the Mock
+cat("DADA2 inferred", length(unqs.mock), "sample sequences present in the Mock community.\n")
+
+mock.ref <- getSequences( "allzymo.fasta")
+match.ref <- sum(sapply(names(unqs.mock), function(x) any(grepl(x, mock.ref))))
+cat("Of those,", sum(match.ref), "were exact matches to the expected reference sequences.\n")
+
+
+```
