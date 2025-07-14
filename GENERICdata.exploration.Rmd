@@ -485,3 +485,47 @@ ggplot(  aes( y=value, x=factor(day), color=NULL, fill=factor(variable), order=-
  ggsave(file="barplot.challenged.day.jpg", height=5, width=5, dpi=600)
 
 ```
+
+
+
+## radEmu for pulling OTUs that are significantly different between treatments 
+
+```{r radEmu}
+# install.packages("devtools")
+# devtools::install_github("statdivlab/radEmu")
+# library(radEmu)
+
+maxab <- apply(otu, 2, max)
+n1 <- names(which(maxab < 50))
+otu.ab <- otu[,-which(names(otu) %in% n1)]
+
+row.names(alpha.expdata) <- alpha.expdata$group
+
+
+
+all_fit <- emuFit(formula = ~ Treatment,
+                  data = alpha.expdata,
+                  Y = otu.ab)
+
+all_fit$coef %>%
+    filter(pval <0.1)
+
+# compare high vs everything else
+alpha.expdata$treat2 <- as.character(alpha.expdata$Treatment)
+#edited to change Control, Medium, Low to "else"
+fix(alpha.expdata)
+
+
+
+all_fit <- emuFit(formula = ~ treat2,
+                  data = alpha.expdata,
+                  Y = otu.ab.denit)
+
+write.csv(file = "radEmuAlpha0.05.csv", all_fit$coef %>%
+    filter(pval <0.05) %>%
+    left_join(taxa, by = c("category"= "OTU") ))
+
+
+
+```                  
+
