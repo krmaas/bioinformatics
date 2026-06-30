@@ -1,0 +1,2734 @@
+---
+title: "MARS_SOP"
+author: "mars"
+date: "2025-01-24"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+```{css, echo=FALSE, warning=FALSE}
+
+.header-section-number {
+  display: none;
+}
+
+body {
+  counter-reset: counter-level-1;
+  font-family: 'Computer Modern';
+  font-size: 12pt;
+}
+
+h1:not(.title) {
+  counter-increment: counter-level-1;
+  counter-reset: counter-level-2;
+}
+
+h1:not(.title)::before{
+  content: counter(counter-level-1) ") ";
+}
+
+h2 {
+  counter-increment: counter-level-2;
+  counter-reset: counter-level-3;
+}
+
+h2::before {
+  content: counter(counter-level-1, decimal) "." counter(counter-level-2) ") ";
+}
+
+h3 {
+  counter-increment: counter-level-3;
+}
+
+h3::before {
+  content: counter(counter-level-1, decimal) "." counter(counter-level-2) "." counter(counter-level-3) ") ";
+}
+
+h1, .h1 {
+    margin-top: 60px;
+}
+h2, .h2, h3, .h3 {
+    margin-top: 20px;
+}
+
+h1 {
+   font-size:2.8em;
+}
+
+h2 {
+   font-size:2.0em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+.button1 {
+  position: fixed;
+  left: 3%;
+  bottom: 1%;
+  z-index: 1000;
+  transform: rotate(360deg);
+  -webkit-transform: rotate(360deg);
+  -moz-transform: rotate(360deg);
+  -o-transform: rotate(360deg);
+ filter: progid: dximagetransform.microsoft.basicimage(rotation=3);
+  text-align: center;
+  text-decoration: none;
+  background-color: white;
+  color: #7035bd;
+}
+
+.button2 {
+  position: fixed;
+  left: 13%;
+  bottom: 1%;
+  z-index: 1000;
+  transform: rotate(360deg);
+  -webkit-transform: rotate(360deg);
+  -moz-transform: rotate(360deg);
+  -o-transform: rotate(360deg);
+ filter: progid: dximagetransform.microsoft.basicimage(rotation=3);
+  text-align: center;
+  text-decoration: none;
+  background-color: #7035bd;
+  color: white;
+}
+
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet"/>
+
+
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+```{r, echo=FALSE, warning=FALSE}
+# install.packages("Rtools")
+# install.packages("rmarkdown")
+# 
+# install.packages("yaml")
+# install.packages("kableExtra")
+# install.packages("magrittr")
+# installed.packages("knitr")
+
+library(rmarkdown)
+library(kableExtra)
+library(magrittr)
+library(knitr)
+# library(tufte)
+
+```
+
+<button class="button1" onclick="openAll()">
+
+Expand All
+
+</button>
+
+```{=html}
+<script>function openAll() {
+  var i, a = document.getElementsByTagName('details');
+  for (i in a) {
+    a[i].open = 'TRUE';
+  }
+}
+</script>
+```
+<button class="button2" onclick="closeAll()">
+
+Close All
+
+</button>
+
+```{=html}
+<script>function closeAll() {
+  var i, a = document.getElementsByTagName('details');
+  for (i in a) {
+    a[i].open = '';
+  }
+}
+</script>
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+<a name="Published Protocols"></a>
+
+# Manufacturer's Protocols and User Manuals
+
+-- [Miseq System Guide](https://support.illumina.com/content/dam/illumina-support/documents/documentation/system_documentation/miseq/miseq-system-guide-for-local-run-manager-15027617-05.pdf)
+
+-- [MiSeq System: Denature and Dilute Libraries Guide](https://support.illumina.com/content/dam/illumina-support/documents/documentation/system_documentation/miseq/miseq-denature-dilute-libraries-guide-15039740-10.pdf)
+
+-- [Nextera XT Reference Guide](https://support.illumina.com/content/dam/illumina-support/documents/documentation/chemistry_documentation/samplepreps_nextera/nextera-xt/nextera-xt-library-prep-reference-guide-15031942-05.pdf)
+
+-- [Qiagility User Manual](https://www.qiagen.com/us/resources/resourcedetail?id=6578e70d-9cfe-457e-be13-3b15556b41ca&lang=en)
+
+-- [Qiaxcel Advanced User Manual](https://www.qiagen.com/us/resources/resourcedetail?id=e3edf734-1e5a-4ebf-957e-a35e120d6290&lang=en)
+
+-- [EpMotion 5075 Operating Manual](https://www.eppendorf.com/US-en/service-support/knowledge-base/literature/manuals/?knowledgebase%5Bsort%5D=fileSize&knowledgebase%5Border%5D=descending&knowledgebase%5Bcontroller%5D=Assets&cHash=c51463e9b5f165456b98b563bc47786c#top)
+
+-- [DNeasy PowerSoil Pro Kit Handbook](https://www.qiagen.com/us/resources/resourcedetail?id=11075370-15f5-467a-983a-dc18bacbe542&lang=en)
+
+-- [DNeasy Powerfood Pro Kit Handbook](https://www.qiagen.com/us/resources/resourcedetail?id=55456cd5-2de4-43b2-8eaa-760d1371710a&lang=en)
+
+-- [Qiacube User Manual](https://www.qiagen.com/us/resources/resourcedetail?id=f7d77c6e-0479-4b2b-a2e0-5ca747114e34&lang=en)
+
+-- [PicoGreen Manual](https://tools.thermofisher.com/content/sfs/manuals/mp07581.pdf)
+
+-- [Synergy HT Operators Manual](https://www.mbl.edu/jbpc/files/2014/05/Bio-Tek_Synergy_HT_User_Manual.pdf)
+
+-- [gen5 User Guide](https://lscf.uta.edu/Documents/Gen5_UserGuide.pdf)
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+\newpage
+
+# Sample Intake
+
+Sample intake consists of appropriately labeling and putting away samples, as well as appropriately entering samples into the LIMS and MARS system. Inspect samples on arrival: - Are they still frozen? - Is there any signs of well to well leakage (presenting as uneven volumes when comparing wells)? - Have we received the sample submission? Email the requestor and PI when samples are shipped to let them know we received the samples and their condition.
+
+------------------------------------------------------------------------
+
+## Physically Recieving Samples
+
+Samples may be submitted for 16S sequencing, library amplification, and/or DNA extraction.\
+Samples may be submitted in either tubes or plates.
+
+<details>
+
+<summary>
+
+</summary>
+
+-   When samples are submitted **in a plate**, **be sure to label both left short side and bottom long side of the plate**\
+    If no submission form uploaded: label with project name and date
+    If submission form uploaded: download from Aurora (see 3.2.1) and copy DNA Plate Name for label
+
+-   Samples submitted in tubes will either be in plain tubes or *bead tubes*
+
+    -   Extraction samples shoud not be shipped in plain tubes. Bead tubes and barcoded labels should be be sent to client ahead of time, being clear that NO MORE THAN 0.200 g of sample should be added to bead tubes. More than this can interfere with the extraction.
+        Start at step 1
+
+    -   Samples in bead tubes will also follow the appropriate extraction kit protocol, starting after the step where $\small \leq$ 0.200 g of sample is added to bead tubes
+
+> **NOTE:** Samples in plates should be stored in the -20°C, samples in bead tubes should be stored in the -80°C.
+
+> **NOTE:** If not entering samples into LIMS immediately after receipt, write project name on back whiteboard: Samples in freezer, not in LIMS.
+
+</details>
+
+------------------------------------------------------------------------
+
+## Entering New Samples into the MARS System and LIMS
+
+$\star$ [Requestors must submit a [project and sample submission form](https://mars.uconn.edu/upload-sample/)]{style="color:#cc0000"}
+
+*The sample submission form is saved on the MARS Z drive and the information is uploaded into LIMS*
+
+------------------------------------------------------------------------
+
+### Sample Book
+
+The sample book contains the project name, sample IDs, requested service, etc. Samples must be entered into the sample book before *ANY* processing is done.\
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Access sample submission forms sent to MARS through [Aurora](https://aurora.uconn.edu/)\
+    (Aurora$\rightarrow$Forms tab$\rightarrow$Entries$\rightarrow$Sample Submissions)
+
+2.  Download the sample submission form, it is an excel file
+
+    -   **Ensure that these fields of the submission form are filled out...\
+        If a field is missing, email the user requesting a new submission - clarify what info is missing.**
+
+        1.  PI (principal investigator) and email
+
+        2.  Requestor name and email
+
+        3.  Emails to recieve raw data
+
+        4.  Project name (consistent across tabs)
+
+        5.  Sequencing target:\
+            i.e., ITS2, V4, and/or EMP
+
+        6.  ***Sample IDs***
+
+            -   Sample ID must be **unique**, have a **unique well position**, and be at least 5 characters long. If short SampleID are submitted, concatenate Project name, date, or well position with Sample ID.
+            -   If samples are submitted in tubesfor extraction, MARS will assign sample IDs on barcoded labels prior to physical sample submission.
+
+        7.  Well positions have 3 characters, meaning that well **A1** is entered **A01** and **A12** as **A12**
+
+    -   If the Requester is outside of UConn, they may submit a credit card or PO number for billing. This should be entered in the KFS billing section.
+
+3.  Save the sample submission form in the sample book folder [(**Z:MarsData/SampleBook**)]{style="color:#4d53da"}
+
+    -   File names should be "**Date.ProjectName.SampleBook.xlsx**"
+
+    -   Save the entire workbook as an excel workbook
+
+    -   Save the "*Samples for Sequencing*" sheet as a csv
+
+        -   If the submission is for extraction, save the "Samples for Extraction" sheet as a csv\
+            **If a plate ID is not given, you may assign a plate ID based on the project and date of submission**\
+
+4.  **Project Book**\
+    After the sample submission form is checked over and saved, go to the [LIMS project entry page](http://test.lims.mars.uconn.edu/LIMS/global_book.php?table=project_book)
+    
+
+    -   Copy and paste the information found in the sample submission sheet, into the corresponding entry spot in the LIMS project entry page
+
+    -   Set the project to "Active"
+
+    -   Click the "save" button at the bottom of the page
+
+        <a name="csvlims"></a>
+
+5.  **Upload the CSV into the LIMS**
+
+    -   (Tools tab$\rightarrow$CSV Batch Upload)
+
+    -   Open FIle Exporer and choose the previously saved sample book csv as the file to upload. Drag and drop file in Upload book: Samples         http://test.lims.mars.uconn.edu/LIMS/file_master_uploader.php?tbl=sample_book
+
+    -   Watch upload and verify that there are no errors
+
+        -   If error message resulsts, check that headings are appropriate and there are no empty rows. If there are empty rows, open the               csv and delete rows up to row 96 where there is no data. Save the csv and drag and drop into Upload book: Samples LIMS. 
+
+    -   Scroll to the bottom of the page and click "save"
+
+</details>
+
+------------------------------------------------------------------------
+
+### Sample Plate Book
+
+The sample plate book is saved on the MARS Z drive and LIMS. It contains sample IDs, well positions, and plate name
+
+**Only for DNA submissions**
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Open in LIMS WORKFLOW --> Sample Plates --> Batch File Upload (Blue Cloud Button)  [**(http://test.lims.mars.uconn.edu/LIMS/file_master_uploader.php?tbl=sample_plate_book)**]{style="color:#4d53da"}
+
+2.  Upper left drop down menu "Download a CSV temple", scroll down to Sample Plates, click to download, open template.
+    (Columns should be "DNA_Plate_ID,	Sample_ID,	DNA_Well_Position,	Record_Date,	Record_Creator")
+
+3.  Open up the sample book for the corresponding project [**(Z:MarsData/SampleBook)**]
+
+4.  Paste the column from SampleBook sheet into newly downloaded Sample Plate excel sheet{style="color:#4d53da"}
+
+5.  Copy in the Plate name, sample IDs, and well positions
+
+6.  Save the sheet as a csv named **"YYYYMMDD.ProjectName.SamplePlateBook"**
+
+7.  Upload the saved CSV into the LIMS at Upload book: Sample Plates         [**http://test.lims.mars.uconn.edu/LIMS/file_master_uploader.php?tbl=sample_plate_book**]
+
+    -   This is done the same way you upload the sample book [csv into the lims](#csvlims)
+
+Once the project is correctly saved into the LIMS and the MARS system, write the project name on the project board. \* Write the **project name, date of submission, number of samples, and next steps**
+
+</details>
+
+------------------------------------------------------------------------
+
+$\Large \text{MARS General Workflow (what to write on the whiteboard):}$
+
+<details>
+
+<summary>
+
+</summary>
+
+Extraction$\Rightarrow$PicoGreen$\Rightarrow$PCR$\Rightarrow$Qiaxcel$\Rightarrow$Pooling$\Rightarrow$Cleaning$\Rightarrow$Concentrating
+
+</details>
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+\newpage
+
+# Sample Extraction and Sample Transfer
+
+Samples may be extracted using a number of different kits or specifications from a client, this is the most commonly followed extraction procedure at MARS.\
+Sample transfer goes hand in hand with extraction.
+
+> **NOTE:** When extracting or transfering samples in a 96 well plate, leave two wells (G12 and H12) blank so that a PCR blank and zymo will fit onto one plate, and a multi-plate PCR can be avoided
+
+> **NOTE:** Never send out bead tubes without barcoded labels
+
+------------------------------------------------------------------------
+
+## Sample Extraction
+
+Generally, the [**Qiagen PowersoilPro Protocol**](#Published%20Protocols) is what you will follow for extractions\
+Follow the advanced protocol, not the quick lookup protocol
+
+<details>
+
+<summary>
+
+Things to Remember
+
+</summary>
+
+-   Differences between the quick lookup protocol and the advanced protocol include that the advanced protocol specifies to only remove 600μL of supernatant, while the quick lookup protocol instructs just to remove the supernatant.\
+    **If not regularly performing extractions, following the quick lookup (less detailed) protocol is an easy way to make a mistake**
+-   [At step 2 in the protocol, where it states to secure bead tubes in a vortex adapter for 10 minutes, the MARS method is to instead **secure beads in the MP FastPrep24** on a speed of 4 for 45 seconds]{style="color:#cc0000"}\
+    The FastPrep is located on the bench between where MARS works and where iGem works\
+
+> **NOTE:**
+>
+> -   Always wipe down the extraction hood with 70% ethanol and UV the hood for 12 minutes before beginning
+> -   Samples in tubes must be individually labelled with sample ID to avoid sample mixups
+
+</details>
+
+------------------------------------------------------------------------
+
+### Supplemental MagAttract PowerSoil Pro SOP. *Written with notes specific for MARS*
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Wipe down the extraction hood with 80% EtOH and UV the hood for 15 minutes
+
+    -   It is a good idea to also UV the bag containing all the different KingFisher plates to be used, and any other bags that you will open and take materials from
+
+2.  Clients were to add **no more than 0.2 grams** of sample to labeled [bead tubes]{style="color:#009900"}
+
+    -   Spin bead tubes first at 15,000 RCF for 1 minute to settle beads and sample material away from cap
+
+3.  Add 800μL of solution CD1 (Lysis Buffer Solution).
+
+4.  Secure tubes evenly in the MP FastPrep and bead beat for 45 seconds at a speed of 4
+
+    -   Program 1 is normally set to speed 4 and 45 seconds
+    -   Ensure bead caps are tightly fastened to avoid sample splattering
+    -   This replaces step 3 in the Qiagen protocol, where tubes are secured in a vortex adapter for 10 minutes
+
+5.  Centrifuge bead tubes at 15,000 RCF for 1 minute
+
+    -   RCF is equivalent to "x gravity" or "g-force"
+    -   RCF $\neq$ RPM
+
+6.  Transfer Supernatant into a KingFisher deep-well 96 Plate containing 300 uL Solution CD2
+
+    -   Expect between 500μL to 600μL of lysate
+    -   Avoid disturbing the pellet. It contains non-DNA and DNA inhibitors
+
+7.  Open and log into the computer in the extraction hood. MARS LIMS should be displayed on the monitor inside of the hood:
+
+    http://test.lims.mars.uconn.edu/LIMS/index.php
+
+    Navigate to the Transfer Book: WORKFLOW -> Transfer Book
+
+    http://test.lims.mars.uconn.edu/LIMS/transfer_book.php
+    
+    Enter the next sequential plate ID as EIDYY0... and click 'Begin Transfer'
+
+     **One by one** tap circle representing well where sample will be placed -> tap window below (can type in ID here if need be) -> transfer the DNA sample to that well in a KingFisher deep-well 96 Plate containing 300 uL Solution CD2 -> scan tube and check -> tap "Confirm"
+
+    *Putting a foil seal (wiped with 80% EtOH) onto plate can prevent sample placement error*
+    
+    *If the computer freezes, you can refresh or close the page and reopen it, the LIMS automatically saves as you go*
+
+</details>
+
+8.  Mix covered plate containing lysate and CD2 on eppendorf ThermoMixer C @ 1100 rpm for 1 minute. Then centrifuge at 4700 rpm for 6 minutes
+
+9.  Transfer **UP TO** 450 μL of supernatant into a new KingFisher deep-well 96 Plate containing 470 uL of a mixture of 3 mL MagAttract Suspension G beads into 44 mL Buffer QSB1 Binding Buffer (volume for 96 samples)
+
+   **Avoid transferring any of the pellet,** it contains non-DNA inhibitory to PCR
+   
+   Insert a KingFisher 96 tip comb for DW Magnets to this plate, lining up barcodes = QSB1 Plate
+   
+10. Add 500 μL of Buffer MW1 Wash Buffer to a new KingFisher deep-well 96 Plate = MW1 Plate
+
+11. Add 500 μL of freshly made 80% EtOH Solution to two new KingFisher deep-well 96 Plates = EtOH Plate 1 & 2
+
+12. Add 100 μL of Buffer Solution C6 to a new KingFisher 96 Plate 200 μL = C6 Plate
+
+13. On KingFisher, load KF Apex MagAttract Powersoil Pro DNA protocol, inserting plates as the progrm prompts:
+    
+    C6 Plate -> 80% EtOH Wash plate 2 -> 80% EtOH Wash plate 1 -> MW1 Plate -> QSB1 Plate with tip comb
+    
+    Program runs for about 48 minutes
+
+14. Once protocol complete, unload plates as prompted, carefully bringing C6 Plate to hood for transfer to a hard shell BioRad 96 well plate (for Opentron robot compatibility) before placing extraction in -20C freezer.
+
+15. UV hood and KingFisher for 15 minutes
+
+Reagent Notes:
+New bottles of QSB1 are diluted with isopropanol
+New bottles of MW1 are diluted with ethanol
+CD2 is kept in the fridge, while the rest of the reagents can be kept at room temperature
+
+
+------------------------------------------------------------------------
+
+Extraction time and machines to use:
+
+<details>
+
+<summary>
+
+</summary>
+
+-   Extractions can be done by hand, using the KingFisher, or using the Qiacube
+
+    -   By hand it is best to do 24 samples at a time\
+        (this is the maximum number of samples the FastPrep can hold)
+    -   Using either the KingFisher or the Qiacube, a full 96-well plate can be extracted
+
+-   Extractions take between 2 and 4 hours in total
+
+    -   Extractions by hand take \~4 hours
+    -   Extractions using the qiacube take \~1 hour + prep time
+    -   Extractions using the KingFisher takes ~2-4 hours
+
+------------------------------------------------------------------------
+
+Operating the Qiacube
+
+<details>
+
+<summary>
+
+</summary>
+
+------------------------------------------------------------------------
+
+</details>
+
+------------------------------------------------------------------------
+
+How to handle a full plate of 96 samples without sample-mixups.\
+**For samples recieved in 2mL tubes no beads**
+
+<details>
+
+<summary>
+
+</summary>
+
+You should only be performing an extraction of 96 samples on the Qiacube or with the KingFisher. Not by hand.\
+Thus, you should not need to keep track of samples past step 7 of the PowerSoil Pro Protocol, since a machine will finish the extraction at that point\
+\
+This is one method that works to efficiently keep track of 96 samples when extracting.
+
+1.  Make sure all samples in tubes are individually labelled with the sample ID on a barcoded sticker
+
+2.  Grab a 2mL tube rack with 96 wells.
+
+3.  Place samples in the tube rack, in the wells that correspond to final DNA well positions
+
+4.  Open up the Transfer Book in the LIMS
+
+5.  For samples in bead tubes, scan each sample into the transfer book with the correct well position after adding solution CD1\
+    Add solution CD1 to one sample, scan it into the transfer book, then return it to the tube rack, Move onto another sample
+
+6.  For samples in non-bead tubes, scan each sample one by one into the transfer book as you transfer samples into bead tubes
+
+-   Refer to [sample transfer](#SampleTransfer) section for more details on accessing Transfer Book
+
+</details>
+
+------------------------------------------------------------------------
+
+*OLD* MoBio PowerMag Soil DNA Isolation Kit Protocol
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Before starting, wipe down the biosafety cabinet. Pull out 1x 100mL epMotion Reservoirs, 1x 30mL epMotion Reservoirs, and 2x foil plate seals (1 for sealing prior to loading the plate and the other sliced into strips for covering up each column after loading samples) and place them in the hood to UV (15-30 minutes minimum). Set aside the UV'd reservoirs in the hood for EpMotion set up later.
+2.  Samples will be handled in sets of 24 (with the fourth set being 22 to account for an extraction and PCR blank). Pull out two sets at a time from the -80C freezer and keep on cold magnetic beads from the -20C.
+3.  To each tube add 750μL of PowerMag Bead Solution and 60μL of PowerMag Lysis Solution. This is most easily accomplished by premixing the two solutions to the amount needed for 95 samples (with extra to account for pipetting error) and aliquoting 810μL to each tube. The solution tends to precipitate out- invert regularly.
+4.  Once 24 samples have been filled- load the tubes into the MP FastPrep24 and run on a speed of 4 for 40 seconds. Make sure the lids are tight or else you will lose sample!
+5.  Unload the tubes and centrifuge them at 4500 x g for 6 minutes. Once complete gently place the tubes (careful not to disturb the pellet) into a rack and place in the 4C fridge and begin working on the next set. Once all samples have been bead beat proceed to the next step.
+6.  Power on the computer hooked up to the monitor in the Biosafety cabinet. Go to the LIMS Workflow Transfer book, type in the extraction ID (EID0\#\#) and click begin transfer. In the hood cover a 1mL Collection Plate with foil and wipe the top with an alcohol wipe. Cut the first column with a razor blade and peel the foil off. Scan each barcode and select the destination well. Pipette no more than 600μL of lysed supernatant into the 1mL plate *taking care to not disturb the pellet*. (Pipette ~500μL for less well to well contamination). It is better to transfer less supernatant than to transfer any part of the soilds. Click confirm to save the destination well. Do this for the entire plate working in one column at a time. Be sure to only have one column of the 1mL Collection Plate exposed at a time and to wipe the foil with an alcohol wipe after sealing each column. For extraction blanks, you must manually type in the sample ID (e.g., EID17Blank) be sure to place the extraction blank in the middle of the plate. Be sure to pipette 600μL of the solution for the BlankOnce all samples are loaded into the 1mL Collection Plate
+7.  Add 450μL of PowerMag IRT Solution to each well (use the Xplorer on a dispensing speed of 2 to pipette) and apply sealing tape to the 1mL Collection Plate. Vortex the plate horizontally for 5s to ensure the plate is well mixed. Incubate at 4C for 10 minutes. Centrifuge the plate for 6 minutes at 4500 x g.
+8.  Carefully remove the sealing tape and transfer \~850μL of the supernatant (avoiding the pellet) to a new clean 1mL Collection Plate. Transfering less supernatant is better than transferring any pellet. Seal the plate with sealing tape and centrifuge at 4500 x g for 6 minutes. The plate containing the pellets can be disposed of the in the BioHazard Waste
+9.  Transfer no more than 850μL of the supernatant to a clean 2mL Deep Well Plate, avoiding any residual pellet. Transfering less supernatant is better than transferring any pellet.
+10. Fill the cleaned and UV'd reservoirs with the necessary solutions (see chart below for full plate, calculate volume needed for partial plates) and place them on the work deck of the EpMotion. Add the beads to the binding solution last, as the beads will separate from the binding solution within 3 minutes. Place the 2mL Deep Well Plate on the work deck and begin the protocol. Make sure the 2mL Deep Well Plate is on the ALPAQUA MAGNUM FLX magnet
+11. There are 3 intervention steps that must be confirmed to continue the protocol: sealing and unsealing the 2mL Deep Well Plate, changing the tips, and removing residual EtOH + placing the elution plate/uncovering the elution reservoir. Use a full skirted 96-well plate for the elution plate. You must pull off all residual EtOH with a pipettor in the biosafety hood, the epmotion will not remove all of the EtoH.
+12. Upon completion, seal the 96-well elution plate with a foil and label the plate with the extraction ID using the label maker.
+
+```{r, echo=FALSE}
+titles <- c("Solution", "Volume of Solution (96 Samples)", "Resevoir Type", "By Hand before EpMotion, or all EpMotion?")
+vol <- c("174mL", "11mL","85mL", "2mL")
+solution <- c("Wash Solution","Elution Buffer", "Binding Solution", "Beads")
+resvrs <- c("400mL Resevoir","30mL Resevoir","100mL Resevoir","add to binding solution, IN 100mL Resevoir")
+robot <- c("Robot", "Robot Rack Position 3", "Robot Rack Position 1", "Robot Rack Position 1")
+xtractionTable <- data.frame(solution,vol,resvrs, robot)
+colnames(xtractionTable) <- titles
+knitr::kable(xtractionTable)
+```
+
+</details>
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+\newpage
+
+# eDNA Quantification
+
+[All DNA submissions to MARS, and DNA extractions, are quantified via the **PicoGreen Protocol**]{style="color:#cc0000"}
+
+------------------------------------------------------------------------
+
+## PicoGreen Experimental Workflow {#picogreen-experimental-workflow}
+
+<details>
+
+<summary>
+
+2 uL sample used in  1X TE and PicoGreen dye before being read for fluorescence on the Synergy HT Platereader
+
+</summary>
+
+1.  Write in the book the project and plate name, "PicoGreen", and the number of samples
+
+2.  Use "New PicoGreen Ladder Template" "R:\CORE_MARS\MARSData\templates\New PicoGreen Ladder Template.xlsx" to create ladder and guidance on making appropriate amount of 1:400 PicoGreen reagent
+
+3.  Gather reagents:
+
+    -   PicoGreen ladder, create a new one or grab already made one from the 4°C fridge
+    -   1 PicoGreen dye aliquot from the 4°C fridge
+    -   DNA sample\
+    -   Ensure you have sufficient 1XTE (kept on the workbench and in PCR hood in a 50mL Falcon Tube)
+    -   Allow the ladder to come up to room temp in the 8-tube-strip microcentrifuge on the workbench, and **allow the PicoGreen dye aliquot to thaw in a dark drawer for at least 30 minutes**
+
+4. For PicoGreen Ladder creation: "R:\CORE_MARS\MARSData\templates\New PicoGreen Ladder Template.xlsx"
+
+For making 5 Ladders (using 2 uL in 48 uL PicoGreen Reagent)
+
+Concentration (ng/uL)	   Stock Volume	         1xTE Volume	
+      25.0	          5 uL 100ug/mL Stock	        15 uL	
+      12.5	          10 uL 25 ng dilution	      10 uL	
+      6.25	          10 uL 12.5 ng dilution	    10 uL	
+      3.125	          10 uL 6.25 ng dilution	    10 uL	
+      1.6	            10 uL 3.125 ng dilution	    10 uL	
+      0.8	            10 uL 1.6 ng dilution	      10 uL	
+      0.4	            10 uL 0.8 ng dilution	      10 uL	
+      0.0	            0 uL	                      10 uL	
+
+    -  **Unused ladder are kept in the fridge**,\
+
+5. For PicoGreen Reagent 1:400: "R:\CORE_MARS\MARSData\templates\New PicoGreen Ladder Template.xlsx"
+
+Columns (N+1 for Standards)	PicoGreen Stock	  1xTE Volume 	Total 
+1 Column	                  2 uL	            798 uL	      800 uL
+2 Columns	                  3 uL	            1197 uL	      1200 uL
+3 Columns	                  4 uL	            1596 uL	      1600 uL
+4 Columns	                  5 uL	            1995 uL	      2000 uL
+5 Columns	                  6 uL	            2394 uL	      2400 uL
+6 Columns	                  7 uL	            2793 uL	      2800 uL
+7 Columns	                  8 uL	            3192 uL	      3200 uL
+8 Columns	                  9 uL	            3591 uL	      3600 uL
+9 Columns	                  10 uL	            3990 uL	      4000 uL
+10 Columns	                11 uL	            4389 uL	      4400 uL
+11 Columns	                12 uL	            4788 uL	      4800 uL
+12 Columns	                13 uL	            5187 uL	      5200 uL
+
+
+6.  Make working solution in a 5mL eppendorf snap cap tube, follow the chart in step 5. 
+
+7.  Retrieve the project's DNA plate , using 48 uL PicoGreen Working Solution with 2 uL DNA. Also ensure that DNA is in columns, if DNA is in rows it must be treated as a full plate with 96 samples.
+
+8.  In column 13 use 48 uL PicoGreen Working Solution with 2 uL of ladder (see step 4).
+
+9.  Immediately seal with foil, vortex plate using IKA MS 3 plate shaker for 60 seconds, and centrifuge for 1 minute.\
+     Turn on the **Synergy HT** via the switch on the front, then open the platereader program, Gen.5 2.05. Click **New Experiment Based on Existing Protocol**, then click on the [**picogreen_384.prt**]{style="color:#4d53da"} experiment. Click on the green arrow button at the top of the page ("read now" button), this will cause the bulb to start warming. The bulb takes \~170 seconds to warm up
+
+10. Bring the plate to the Synergy, remove the foil, insert the plate, and read by clicking **OK**\
+    The Synergy will take the plate, close, and read
+
+11. When the Synergy has finished, save that file and then click on the Excel icon to the left of "Edit Matrix" link  (This will export the data into an excel sheet) Save this Excel file in Synergy file:"R:\CORE_MARS\MARSData\Synergy"
+
+12. When the option to save the experiment arises, save with naming as: **YYYYMMDD.ProjectName.PicoGreen** Save the experiment in the experiment folder (**not on the R drive but on the Synergy computer**).
+
+13. Save the excel sheet in the R drive [**R:\CORE_MARS\MARSData\Synergy**]{style="color:#4d53da"}\
+    The excel sheet contains raw fluorescent values of samples and the standard curve. A regression of fluorescence vs standard values is used to generate eDNA concentrations
+
+    
+
+</details>
+
+
+------------------------------------------------------------------------
+
+## eDNA Book <a name="edna"></a>
+
+The eDNA page is made from the PicoGreen data and the SampleBook
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Download the [eDNA book from the LIMS]{style="color:#009900"}\
+    (LIMS$\rightarrow$Reports/Templates tab$\rightarrow$eDNA template)\
+    Enter the plate name found in the sample book to render the eDNA book
+
+2.  Open the [eDNA/picogreen template in the MARS templates folder]{style="color:#009900"}\
+    []{style="color:#4d53da"}
+
+3.  Open the [PicoGreen excel sheet in the Synergy folder]{style="color:#009900"}\
+    [(**"R:\CORE_MARS\MARSData\Synergy"**)]{style="color:#4d53da"}\
+    This sheet was created in the [(**"R:\CORE_MARS\MARSData\templates\picogreen.template.SINGLE_plateA.xlsx"** or **"R:\CORE_MARS\MARSData\templates\picogreen.template.SINGLE_plateB.xlsx"**)](#picogreen-experimental-workflow)
+
+4.  Copy the information from the [**LIMS generated eDNA book**]{style="color:#009900"} and paste it into the <span style="color:#009900">**'eDNA.template' sheet of the eDNA/picogreen template**.\
+    Ensure you are pasting into the correct columns; *DNA_Plate_ID, Sample_ID, DNA_Well_Position*
+
+5.  Within the **eDNA.template** sheet, input the date of the PicoGreen experiment for *Picogreen Date* column. Put 'user' for the *Extraction_Date, Extracted_by, and Extraction_Method* columns
+
+6.  Copy the data in the table from the [**Synergy generated PicoGreen excel sheet**]{style="color:#009900"},\and paste it into the [**(**"R:\CORE_MARS\MARSData\templates\picogreen.template.SINGLE_plateA.xlsx"** or **"R:\CORE_MARS\MARSData\templates\picogreen.template.SINGLE_plateB.xlsx"**)**]{style="color:#009900"}: the table within the **raw.data** sheet
+
+7.  Check the standard deviations of both the **standard curve within the 'raw.data' sheet**,\
+    and the **DNA samples in the 'DNA' sheet**
+
+    Standard deviations that are too high will be highlighted in red. Click on these cells to show the referenced cells in the **formula** bar, adjust what cells included to exclude outliers, this will lower the standard deviation 
+
+8.  Save the picogreen/eDNA template as an excel workbook with naming as **YYYYMMDD.ProjectName.eDNA**
+
+9.  Save the [**(**"R:\CORE_MARS\MARSData\templates\picogreen.template.SINGLE_plateA.xlsx"** or **"R:\CORE_MARS\MARSData\templates\picogreen.template.SINGLE_plateB.xlsx"**)**] sheet as a csv with the same naming as the excel workbook
+
+10. **Upload the eDNA csv to the LIMS**
+
+    -   (Tools tab$\rightarrow$CSV Batch Upload)
+    -   Choose 'eDNA book' as the file destination
+
+</details>
+
+------------------------------------------------------------------------
+
+## Less Often Encountered Maintenance for PicoGreen
+
+Making 1xTE 
+Changing Synergy HT lightbulb
+
+------------------------------------------------------------------------
+
+### Making 1xTE:
+
+<a name="onexte"></a>
+
+1 x TE is the dilutent for DNA quantification.\
+Aliquots are kept in 50mL Falcon Tubes on the workbench. Stock (10xTE) is kept on the workbench
+
+<details>
+
+<summary>
+
+</summary>
+
+-   1xTE is made from the stock 10xTE
+
+    -   **5mL 10xTE + 45mL MBG H2O**
+
+</details>
+
+------------------------------------------------------------------------
+
+### Changing the Lightbulb in the Synergy HT:
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Open front by pushing bottom two corners
+2.  Remove entire light and stand inside of machine by pulling **gently**
+3.  Remove the top and bottom screws holding the light bulb in
+4.  Place new light bulb in and screw in the top and bottom screws and place entire stand back into the Synergy and close the door
+
+</details>
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# PCR
+
+------------------------------------------------------------------------
+
+## Sample Summary Setup
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Download PCR template from the LIMS\
+    (LIMS$\rightarrow$Reports/Templates tab$\rightarrow$PCR template)\
+    Enter the plate name found in the eDNA book
+
+2.  Open the sample summary template in the Mars templates folder\
+    [(**"R:\CORE_MARS\MARSData\templates\sample.summary.template.epmotion.qiaxcel.pcr.conc.xlsx"**)]{style="color:#4d53da"}
+
+3.  Copy the columns from the LIMS generated sheet, and paste them into the corresponding columns in the **pcr.template** sheet of the sample summary template
+
+    -   For multi-plate PCRs, repeat this step and paste each new DNA plate on the same page in the immediate next row\
+         
+
+4.  Add your blank and Zymo as the last sample(s) on your PCR
+
+    -   **Project name** and **DNA plate ID** are **MarsTest**
+
+    -   **Sample ID** and **Sample Name** are **RIDxxxxBlank / RIDxxxxZymo**
+
+        -   xxxx represents the unique numbers you assign as the RID
+        -   A blank is necessary\
+            \
+
+5.  Input a new RUNID, enter into the Run_ID column as ***RID00xxxx***
+
+6.  Project_Name, DNA_Plate_ID, Sample_ID, Sample_Name, DNA_Well_Position, DNA_ng/ul columns are all filled in from LIMS PCR Template
+    (LIMS$\rightarrow$Reports/Templates tab$\rightarrow$PCR template)\
+    
+7.  Enter a dilution factor which yields a value closest to 30ng/μL
+
+    -   **If the dilution factor is 1, you will use the original eDNA plate in the PCR**
+
+    -   **If the dilution factor is anything other than 1, you will need to make a dilution of the eDNA which matches the dilution factor**
+
+        -   Dilutions must be made with MBG H2O\
+            \
+    -   **Calc_vol_DNA, Vol_DNA, eDNA_PCR, Vol_H2O_PCR columns will calculate once dilution factor added**
+         -   Manually add into DNA_ng/ul column 0.1 for Blank and 1.0 for Zymo, then changing Vol_DNA column to 0 for Blank and 1 for Zymo\
+            \
+
+8.  Input your initials into the **PCR_by** column
+
+9.  Input the date into the **PCR_date** column, using rhe format **YYYY-MM-DD**
+
+10. Use the dropdown bar in the **DNA_Index_Plate** column to select the correct indexed primer plate
+
+    -   You are selecting the working primer plate to use, it contains specific forward and reverse primers
+
+    > Ensure that that each PCR going on a single sequencing run is using **unique indexed primers**, this often mean checking the -20°C freezer for available working primer plates before filling in the DNA_Index_Plate column
+
+11. **DNA_Index_Well** corresponds to the wells of the working Primer plate that will be used
+
+    -   Pay attention if a partial plate is being used, **for partial plates, input the starting column of the partial plate, and make a note in the book**
+
+        -   You can navigate to **well.sort.partial.plate** sheet and copy the correct columns\
+            \
+
+12. **PCR_Well_Position** corresponds to the final wells the PCR product will be in, this will usually start at A01
+
+13. Enter the Polymerase being used into the **Polymerase** column
+
+    -   For GoTaq, enter **GoTaq polymerase**\
+        \
+
+14. For 
+
+15. Alter the calculated volumes of the blank and zymo so that only water is being added to the blank, and nothing is being added to the zymo
+
+    -   You will put in 1 uL zymo by hand\
+        \
+
+16. Save the excel workbook in [(**"R:\CORE_MARS\MARSData\SampleSummary"**)]{style="color:#4d53da"}, with the naming **YYYYMMDD.RID00xxxx.SampleSummary.xlsx**
+
+17. Save the **opentronDNA** sheet as csv also in the SampleSummary folder\
+   [(**"R:\CORE_MARS\MARSData\SampleSummary"**)]{style="color:#4d53da"}
+
+    -   The DNA csv should be named as: **YYYYMMDD.RID00xxx.opentronsDNA**,\
+    -   Change source and destination wells from A01 to A1, eliminating zeros using:
+    Find & Select$\rightarrow$Replace$\rightarrow$Find what: 0 $\rightarrow$Replace with: (nothing) $\rightarrow$Replace All\     
+    -   Be sure not to highlight A10 (want to keep zeros for column 10!!!)\
+    -   Delete all rows with no data or 0 as the volume: Blank and Zymo, and any other zeros or #DIV/0! found to be compatible with conversion to python     protocol for opentrons\
+    \
+
+18. Conversion to Python Protocol for robot DNA step:
+
+    -   https://protocols.opentrons.com/protocol/7a3e4b\
+
+    -   Scroll down to Volumes CSV, click on Choose File, open opentronsDNA CSV\
+
+    -   Pipette Model = P20 Single GEN2\
+
+    -   Pipette Mount = Right side\
+    
+    -   Source Labware Type = BioRad 96-Well, 200 uL PCR\
+    
+    -   Destination Labware Type = BioRad 96-Well, 200 uL PCR\
+    
+    -   Tip Usage Strategy = Use a new tip for each transfer\
+
+    -   Click Download For OT-2\
+    
+    -   Open file, copy PY file into "R:\CORE_MARS\MARSData\OpentronProtocols\Runs"\
+    
+    -   Rename file YYYYMMDDRID00xxxxPCR\
+    
+    -   Copy name and right click Edit with Notepad++\
+    
+    -   Line 8 of protocol 'protocolName': change from **Cherrypicking with Source and Destination** to **YYYYMMDDRID00xxxxPCR**\
+      
+    -   Save\
+    
+        \
+
+19. 
+
+20. 
+
+## Opentrons Setup for PCR
+
+
+1.  Uploading Python Protocol to Robot:
+
+    -   Open Opentrons App $\rightarrow$ Protocols $\rightarrow$ Import (upper right) $\rightarrow$ Upload $\rightarrow$ Choose File $\rightarrow$ Open
+
+2.  Using Opentrons Robot to transfer DNA from client's plate to primer plate:
+
+    -   Click on protocol name (YYYYMMDDRID00xxxxPCR) $\rightarrow$ Start setup $\rightarrow$ (Robot on) $\rightarrow$  Proceed to setup $\rightarrow$ Labware + $\rightarrow$ Map view  $\rightarrow$ Put Tips, source and destination plates in place $\rightarrow$ Start run (blue button, upper right)/
+    \
+
+3.  Seal client's project plate and return to -20C freezer. Seal plate and use plate shaker (IKA MS3 digital) set at 2000 for 60 seconds, centrifuge at 2000 rpm for 1 minute, transfer to 384 plate
+
+
+4.  Using Opentrons Robot to transfer PCR from 96-well plate to 384-well plate: *(this should be the very last sample transfer step)*
+
+  
+  -   Protocols $\rightarrow$ PCR Step 3 $\rightarrow$ Start setup $\rightarrow$ (Robot on) $\rightarrow$  Proceed to setup $\rightarrow$ Labware + $\rightarrow$ Map view  $\rightarrow$ Put Tips, source and destination plates in place $\rightarrow$ Start run (blue button, upper right)/
+
+  -  This protocol has an initial step to place 1 uL Zymo into well H12. If Zymo added to another well already by hand simply let robot go through the motions on a dummy plate, click Pause run (blue button, upper right), put 96-well primer plate with Master Mix, primers and DNA in proper place on deck, place new/sterile 384 plate on deck according to Map view, click Resume run/
+
+5.  Seal with a clear B seal, centrifuge at 2000 rpm for 1 minute, place into thermal cycler
+
+
+
+------------------------------------------------------------------------
+
+## Common PCR Master Mixes
+
+<details>
+
+<summary>
+
+</summary>
+
+\
+\
+
+PCR master mix templates can be found at **"R:\CORE_MARS\MARSData\templates\MasterMix_Templates.xlsx"**
+
+$\textbf{This is the most commonly used master mix at MARS}$
+
+$\textbf{PROMEGA GoTaq Master Mix (50uL Reaction)}$
+
+Reagent	              |   1x rxn (µL)
+---------------|------
+Water	                   |   27.2
+GoTaq Buffer	            |  10
+BSA	                       | 2
+10 mM dNTPs	                | 0.25
+0.1 µM non-barcoded primers	| 0.1
+100 mM MgSO4	   |           0.05
+GoTaq Polymerase	|          0.4
+DNA & Water	       |         6	
+Barcoded primers	  |        4	
+
+Aliquot	mix to each well    40	
+Total volume	              50	
+	
+\
+$\textbf{1st step of 2-Step GoTaq Master Mix (50uL Reaction)}$
+
+Reagent	         |        1x rxn (µL)
+---------------|------
+Water	           |           31.5
+GoTaq Buffer	    |          10
+BSA	               |         2
+10 mM dNTPs	        |        0.25
+100 mM MgSO4         |       0.05
+User primers forward  |    	2
+User primers reverse   |     2
+GoTaq Polymerase	      |    0.4
+DNA & Water	  |              2 	
+
+Aliquot	mix to each well    48	
+Total volume	              50	
+	
+\
+**2-step PCRs should NOT be done in triplicate**
+
+$\textbf{2-Step GoTaq Master Mix (50uL Reaction)}$
+
+Reagent	              |   1x rxn (µL)
+---------------|------
+Water	                 |     30.3
+GoTaq Buffer	          |    10
+10 mM dNTPs	             |   0.25
+0.1 µM non-barcoded primers|	0.1
+100 mM MgSO4	       |       0.05
+GoTaq Polymerase	    |      0.4
+PCR product from 1st PCR |	                5	
+Barcoded primers	        |  4	
+	
+Aliquot	mix to each well    41	
+Total volume	              50	
+	
+\
+$\textbf{NANOPORE GoTaq Master Mix (50uL Reaction)}$
+
+Reagent	          |       1x rxn (µL)
+---------------|------
+Water	                |      31.5
+GoTaq Buffer	     |         10
+BSA	              |         2
+10 mM dNTPs	       |         0.25
+100 mM MgSO4        |        0.05
+Nanopore primers forward  | 	2
+Nanopore primers reverse   | 2
+GoTaq Polymerase	    |      0.4
+DNA & Water	          |      2 	
+
+Aliquot	mix to each well    48.2	
+Total volume	              50.2	
+	
+\
+\
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+rgnts <- c("Accuprime PFX Reaction Mix", "Accuprime PFX Polymerase", "50mM MgSO_4", 
+           "0.1mM Non-Illumina Forward & Reverse Primers", "PCR Water", 
+           "DNA & Water", "Barcoded Priemrs")
+vol <- c(5, 0.5, 0.1, 0.2, 33.4, 6.0, 5.0)
+titles <- c("Accuprime PFX Master Mix (50μL Reaction)", "Volume per 1 Reaction (μL)")
+AccuprimePFX <- data.frame(rgnts,vol)
+colnames(AccuprimePFX) <- titles
+library(magrittr)
+knitr::kable(AccuprimePFX, align = "c", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), full_width = F, position = "left")
+```
+
+$\text{   The total volume of Master Mix combined by hand is 39.2μL}$
+
+\
+\
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+titles <- c("Accuprime PFX Supermix Master Mix (58μL Reaction)", "Volume per 1 Reaction (μL)")
+rgnts <- c("Accuprime PFX SuperMix", "BSA", "0.1mM Non-Illumina Forward & Reverse Primers", "DNA & Water", "Barcoded Primers")
+vol <- c(45, 2, 0.2,6, 5)
+AccuprimePFXSuper <- data.frame(rgnts,vol)
+colnames(AccuprimePFXSuper) <- titles
+knitr::kable(AccuprimePFXSuper, align = "c", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), full_width = F, position = "left")
+```
+
+$\text{   The total volume of Master Mix combined by hand is 47.2μL}$
+
+</details>
+
+------------------------------------------------------------------------
+
+## Thermocycler Conditions
+
+<details>
+
+<summary>
+
+</summary>
+
+\
+\
+
+$\textbf{v4 GoTaq Polymerase}$
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+temp <- c("95°C", "95°C", "55°C", "72°C", "72°C", "4°C")
+steps <- c("Initial Denaturation", "_ Denaturation (x30)", "_ Annealing (x30)", "_ Extension (x30)", "Final Extension", "Hold")
+t <- c("02:00", "00:30", "01:00", "01:00", "05:00", "infinity")
+titles <- c("Step", "Temp", "Time(mm:ss)")
+v4gotag <- data.frame(steps, temp, t)
+colnames(v4gotag) <- titles
+knitr::kable(v4gotag, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), full_width = F, position = "left")
+```
+
+\
+\
+
+$\textbf{ITS GoTaq Polymerase}$
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+temp <- c("95°C", "95°C", "48°C", "72°C", "95°C","55°C", "72°C", "72°C", "4°C")
+steps <- c("Initial Denaturation", "__ Denaturation (x5)", "__ Annealing (x5)", 
+           "__ Extension (x5)", "_ Denaturation (x25)", "_ Annealing(x25)", "_ Extension (x25)",
+           "Final Extension", "Hold")
+t <- c("02:00", "00:30", "01:00", "01:00", "00:30", "01:00", "01:00", "05:00", "∞")
+titles <- c("Step", "Temp", "Time(mm:ss)")
+ITSgotag <- data.frame(steps, temp, t)
+colnames(ITSgotag) <- titles
+knitr::kable(ITSgotag, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), 
+                            full_width = F, position = "left") 
+```
+
+\
+\
+
+$\textbf{2-Step GoTaq Polymerase}$
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+temp <- c("95°C", "95°C", "55°C", "72°C", "72°C", "4°C")
+steps <- c("Initial Denaturation", "_ Denaturation (x8)", "_ Annealing(x8)", 
+           "_ Extension (x8)", "Final Extension", "Hold")
+t <- c("02:00", "00:30", "00:30", "01:00", "05:00", "infinity")
+titles <- c("Step", "Temp", "Time(mm:ss)")
+twostepgotaq <- data.frame(steps, temp, t)
+colnames(twostepgotaq) <- titles
+knitr::kable(twostepgotaq, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), 
+                            full_width = F, position = "left") 
+```
+
+\
+\
+
+$\textbf{2-Step Accuprime}$
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+temp <- c("95°C", "95°C", "55°C", "68°C", "68°C", "4°C")
+steps <- c("Initial Denaturation", "_ Denaturation (x8)", "_ Annealing(x8)", 
+           "_ Extension (x8)", "Final Extension", "Hold")
+t <- c("02:00", "00:15", "00:30", "01:00", "05:00", "infinity")
+titles <- c("Step", "Temp", "Time(mm:ss)")
+twostepaccu <- data.frame(steps, temp, t)
+colnames(twostepaccu) <- titles
+knitr::kable(twostepaccu, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), 
+                            full_width = F, position = "left") 
+```
+
+\
+\
+
+$\textbf{v4/ITS Accuprime}$
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+temp <- c("95°C", "95°C", "55°C", "68°C", "68°C", "4°C")
+steps <- c("Initial Denaturation", "_ Denaturation (x30)", "_ Annealing(x30)", 
+           "_ Extension (x30)", "Final Extension", "Hold")
+t <- c("02:00", "00:15", "01:00", "01:00", "05:00", "infinity")
+titles <- c("Step", "Temp", "Time(mm:ss)")
+v4accu <- data.frame(steps, temp, t)
+colnames(v4accu) <- titles
+knitr::kable(v4accu, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), 
+                            full_width = F, position = "left") 
+```
+
+\
+\
+
+$\textbf{v4 Accuprime Supermix}$
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+temp <- c("95°C", "95°C", "55°C", "68°C", "68°C", "4°C")
+steps <- c("Initial Denaturation", "_ Denaturation (x30)", "_ Annealing(x30)", 
+           "_ Extension (x30)", "Final Extension", "Hold")
+t <- c("05:00", "00:15", "01:00", "01:00", "05:00", "infinity")
+titles <- c("Step", "Temp", "Time(mm:ss)")
+v4accuS <- data.frame(steps, temp, t)
+colnames(v4accuS) <- titles
+knitr::kable(v4accuS, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), 
+                            full_width = F, position = "left") 
+```
+
+\
+\
+
+$\textbf{v4 Phusion}$
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+temp <- c("94°C", "94°C", "50°C", "72°C", "72°C", "4°C")
+steps <- c("Initial Denaturation", "_ Denaturation (x30)", "_ Annealing(x30)", 
+           "_ Extension (x30)", "Final Extension", "Hold")
+t <- c("03:00", "00:45", "01:00", "01:30", "10:00", "infinity")
+titles <- c("Step", "Temp", "Time(mm:ss)")
+phus <- data.frame(steps, temp, t)
+colnames(phus) <- titles
+knitr::kable(phus, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), 
+                            full_width = F, position = "left") 
+```
+
+</details>
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+
+# Making Dual Index Plates
+
+------------------------------------------------------------------------
+
+## Making Master Primer Plates
+
+$\star$ Indexed primers should be ordered to 200nM in a 96-well plate
+
+-   *See [Appendix A](#Appendix%20A) for primer design*
+
+Master primer plates contain an equal amount of forward and reverse primer in each well.\
+Master primer plates are used to make working primer plates.
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  On the epMotion 5075 program, *EpBlue*, open the protocol [**PrimerStocktoMaster *(epMotion:MARS/MARS COMMON)***]{style="color:#4d53da"}
+
+    -   Set up the epMotion as specified in the protocol
+
+2.  On the Z drive computer, open the **Primers** folder and navigate to [***(Z:MarsData/Primers)***]{style="color:#4d53da"}
+
+    -   undiluted 200nM F and R primers (Primer stocks) are dispensed into a **BioRad 96-well Full-Skirted Plate**, following the scheme in this file
+
+3.  Label each plate with primer arrangement, master plate, and date:\
+    (**v4.SASB 10μM Master Plate 2016-12-15\
+    v4.EMP.SASC 10μM Master Plate 2020-12-15**)
+
+    **NOTE** One 10μM Master Plate will allow you to make approximately 40 10μM working plates
+
+</details>
+
+------------------------------------------------------------------------
+
+## Making Working Primer Plates
+
+Working primer plates are used directly in PCRs.\
+Master mix is dispensed into the primer plate, followed by DNA. \~5μL of forawrd and reverse primer for a specific target are in each well of a working primer plate
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Open the epMotion protocol and set up the machine appropriately;\
+    [**PrimerAliquot (MasterPlate to WorkingPlate) *(epMotion: MARS/MARS COMMON)***]{style="color:#4d53da"},\
+    be sure to use [Eppendorf **full skirted plates**]{style="color:#009900"}
+
+    **NOTE:** This protocol will aliquot 4.8μL of the F and R primers, from the master plate, into each well of the working plates
+
+    **NOTE:** 5 working plates are made
+
+2.  Label the plates with primer arrangement, working plate, and date:\
+    (**v4.SASB 10μM 20161215 Working**)
+
+> **NOTE:** Master primer plates and Stock primer plates are stored in the -80°C freezer. Working primer plates are stored in the -20°C freezer
+
+</details>
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+
+# Qiaxcel
+
+PCR products are verified via the Qiaxcel.\
+A full plate takes \~30minutes to run\
+The qiaxcel reads in rows, not columns
+
+For initial (i.e., cartridge / buffer setup and buffer tray set up), please refer to the [QIAxcel Advanced User Manual](https://www.pipety.cz/data/machines/hb-0804-010_1108754_um_ias_qx_advanced_1117_ww.pdf)
+
+There are instruction cards/manuals above the QiAxcel
+
+------------------------------------------------------------------------
+
+## Qiaxcel Workflow
+
+After the PCR is completed and transferred to a semi-skirted 96-well plate, it is ready for Qiaxcel quantification
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Centrifuge the PCR plate and aquire another semi-skirted plate to be used for the Qiaxcel
+
+    **It is helpful to place the Qiaxcel plate on a colored plate holder, and/or writing "QX" in the corner of the plate, in order to avoid mixing up the PCR plate with the Qiaxcel plate**
+
+2.  In the book, write "Qiaxcel", the RID, and whether or not you will use **well adjustments**
+
+    The Qiaxcel reads in rows not in columns; **well adjustments** is transferring the columns of the PCR product into the rows of the Qiaxcel plate, this saves the Qiaxcel reagents being used and saves time.
+
+    If the PCR is 6 or more columns, you should not use well adjustments, if the PCR is less than 6 columns, you should use well adjustments
+
+3.  Aquire the resevoir above the workbench, and fill it with **Qiaxcel DNA Dilution Buffer**\
+    The resevoir is kept in a plastic bag and is labelled as "QX Buffer"
+
+4.  Multi-dispense 10uL of DNA dilution buffer into the rows that will be used
+
+5.  Load 2uL of PCR product into wells, and bring the plate to the Qiaxcel
+
+6.  On the Qiaxcel program, navigate to the "Process Page," then click "Back to Wizard"
+
+7.  Run samples under Default Fast Analysis v2.0, with
+
+8.  Ensure the "Peak Calling Instruction" tab is correct Peak Calling Instruction is usually **v4**, other possibilities are ITS, v13, and 2step *(This will create a log of peaks and concentration that fall within 15% of X bp, with X usually being 400 for v4)*
+
+9.  Choose "saved reference marker table" if you previously ran and saved a size marker
+
+    -   If you loaded a size marker onto the QIAxcel dilution plate, choose "run marker side by side"
+    -   FA DNA size marker 50bp-1.5kb
+    -   Alignment marker 15bp-3kb
+
+10. Select the rows with samples in the "Sample Selection" tab If the size marker is loaded on the plate, identify it by right-clicking
+
+11. On the "Run Check" tab, check pre-run warnings, and click "run"
+
+12. Upon completion, exit out of the two automatically generated pdf reports, and navigate to **Analysis** on the Qiaxcel program
+
+    -   Qiaxcel experiments appear in the left side of the screen, right click on the correct run and click "Activate"
+
+13. Ensure all bands were captured by going through each sample
+
+14. Click select all on the gel image page, then export peak calling table as csv by selecting "Export" (on the right side of the application)\
+    Ensure the report is being saved in [**(Z:MARS/MarsData/Qiaxcel)**]{style="color:#4d53da"}
+
+15. Open the [Peak calling report]{style="color:#009900"} just created, and open the [Sample Summary sheet]{style="color:#009900"} corresponding to the correct PCR
+
+16. Copy the Qiaxcel report, and paste it into the qiaxcel.output sheet of the sample summary
+
+17. Copy the correct well positions into the sample info column.
+
+    -   Well positions correspond to the PCR concentration on the "pcr.template" sheet, and will depend on whether or not well adjustments were used
+    -   Make sure that The PCR_concentration column in the pcr.template tab is filled in
+
+18. Save the **pcr.template** sheet as a csv in [**(Z:MARS/MarsData/SampleSummary)**]{style="color:#4d53da"}\
+    Naming should be **YYYYMMDD_RID111_samplesummary.csv**
+
+19. Upload the csv to the sample summary book in the LIMS
+
+</details>
+
+------------------------------------------------------------------------
+
+## Qiaxcel Maintenance (Less Often Needed)
+
+------------------------------------------------------------------------
+
+### Replacing the Cartridge and Reagents
+
+<details>
+
+<summary>
+
+</summary>
+
+Ensure that the cartridge, alignment marker, and size marker are at room temperature prior to running samples. Load the cartridge (generally Fast Analysis) into the machine \*this is usually unnecessary because the cartridge stays in the QiAxcel.
+
+
+This protocol is also available in the Qiaxcel DNA Handbook:
+
+
+1. Allow new reagents to reach room temperature. Discard oldest QX reagents (found in top QX drawer) to be replaced with new reagents once setup is complete.
+
+2. Add 10mL QX Wash Buffer to both reservoirs of the covered QX Cartridge Stand and top with 2mL mineral oil.
+
+3. Remove cartridge from packaging and set inside the covered QX Cartridge stand. Allow to sit for at least 20 minutes.
+  -   Remove old cartridge by opening top, removing key, and lifting slowly. Dispose vertically in large sharps container.
+  -   Place new cartridge slowly into top of QX, inserting the key before cartridge reaches the bottom. Close the top.
+
+4. Prepare buffer tray:
+  -   Clean buffer tray with hot water and rise with DI water.
+  -   Fill the WP and WI reservoirs with 8mL QX Wash Buffer.
+  -   Fill BUFFER reservoir with 18mL QX Separation Buffer.
+  -   Add mineral oil to cover all reservoirs: 2mL to WP and WI, 4mL to BUFFER.
+
+5. Load 15μL QX Alignment Marker (15bp-3kb) into clear 12-strip tube, then add mineral oil. Place in position MARKER 1 on buffer tray.
+
+6. Load 15μL QX Intensity Calibration Marker into blue 12-strip tube, then add mineral oil. Place in position MARKER 2 on buffer tray.
+
+7. Place buffer tray back onto QX.
+
+8. Launch the calibration wizard by selecting the "Service" tab, then the "Calibration" tab. Hit "Start Calibration" at the bottom right of the screen.
+
+9. Once calibration is complete, begin your QX run (with new size marker if necessary; see below for details).
+
+</details>
+
+------------------------------------------------------------------------
+
+### Size Marker
+
+<details>
+
+<summary>
+
+</summary>
+
+If there isn't a recent Size Marker Table saved (the QIAxcel will have a green circle next to the saved Size Marker Table if it is recent), load 10μL of Size Marker (15bp - 3kb) into an empty well on your plate (no dilution buffer necessary), select run marker side by side, and toggle the marker on the image of the plate by right clicking. (Later you will add back in the 50 kb marker to the ladder).
+
+In the Analysis tab at the top, choose the experiment just run (usually at the bottom on the left side) and the lane in which the size marker was run.
+
+Click the reference marker tab at the top of the gel image. Check to make sure the number of bands in the size marker chosen matches the manufacturer number. Choose the Save As button and name the size marker table (Ex. 2016Dec15_FAMarker).
+
+</details>
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# qPCR
+
+qPCR is **Quantitative Real-Time PCR**, and it quantifies the the the concentration of a specific target gene in samples, using fluorescence
+
+The qPCR reaction uses **white 384 plates** - BioRad brand
+
+------------------------------------------------------------------------
+
+## qPCR Import File and EpMotion Program SetUp
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Download the LIMS generated eDNA template for the appropriate plate
+
+2.  Copy and paste the output into the qPCR_Template, 'picogreenTemplate' tab\
+    [**(Z:MarsData/templates/qPCR_template)**]{style="color:#4d53da"}
+
+3.  Put in the date of the qPCR in the 'Picogreen_Date' column, the other columns are not necessary to fill in.\
+    <span style="color:#4d53da">(Z:MarsData/qPCR)
+
+4.  'Sheet 2' in the qPCR_Template should automatically fill in after step 2.\
+    Copy the 'Sample_ID' column from 'Sheet 2' and paste it into the 'Sample_name' column in the 'qPCR_Import' tab.
+
+5.  Fill in the 'Target Name' column with the appropriate target (either ITS, V4, or EMP)
+
+6.  Save the 'qpcrImport' tab as a CSV, **YYYYMMDD.PlateName.Target.import.csv** in [(Z:MarsData/qPCR)]{style="color:#4d53da"}
+
+7.  On the EpMotion, open the qPCR protocol [**(EpMotion/MarsCommon/qPCR)**]{style="color:#4d53da"}
+
+8.  Set up the EpMotion work deck as specified in the protocol (make sure you are using the correct labware)
+
+    -   The EpMotion qPCR protocol will first multidispense 18uL of master mix into appropriate triplicate wells in the 384 plate. It will then multidispense 2uL of DNA into triplicate wells, and the last step will be to multidispense the ladder into triplicate wells.
+
+</details>
+
+------------------------------------------------------------------------
+
+## qPCR Experimental Workflow
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Make your [qPCR ladder](#qpcrladder), then make your [qPCR mastermix](#qpcrmm)
+
+    **be careful to shield the supermix from light**\
+    Store master mix in a drawer until you are ready to load and run the EpMotion protocol\*
+
+2.  Spin down the DNA plate before loading it onto the work table\
+    There is a stop in the protocol to uncover the plate so leave it covered until then
+
+3.  Position the 8-strip tube containing the ladder as so: **highest concentration at the top** and **lowest concentration at the bottom**
+
+4.  Turn off the lights and close the blind of the door if possible, ensure all components of the protocol have been loaded onto the work table and run the EPmotion protocol
+
+5.  Once the protocol has completed, cover the qPCR plate with foil to protect it from light, lightly vortex, and spin down for 1 minute
+
+6.  Use optical film to seal the qPCR plate.
+
+    -   Heat seal the film using the BioRad PX1 PCR Plate Sealer (in the student lab to the left of Kendra's office)\
+    -   Remove the foil and seal using a temperature of 170°C for 8 seconds.\
+
+7.  On the [BioRad CFX96 Real Time System thermocycler]{style="color:#009900"} select **Saved Files / CAGT CFX/ MARS**\
+    Then select **V4SYBER** (if the target is not V4 you will not pick V4SYBER).
+
+8.  Hit 'Run' and accept the default settings
+
+9.  Once the protocol is complete discard the plate (look at the data first just in case)
+
+</details>
+
+<a name="qpcrladder"></a>
+
+------------------------------------------------------------------------
+
+### qPCR Ladder
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Pipette 20uL of the 1:100 synthetic gene into the first well (A01) of an 8-strip tube
+
+2.  Pipette 2uL from position A01 in the 8-strip tube into position B01 in the same 8-strip tube
+
+3.  Add 18uL H2O into B01 and pipette to mix.
+
+    -   Continue the serial dilution (1:10) down the 8-strip tube (**2uL of previous concentration + 18uL H2O**) until the last well\
+
+    -   Add **20uL H2O to the last well**
+
+        -   *Starting off with 20 uL of 1:100 dilution of stock GBlock (10,000,000) in well 1 of the 8-strip ladder. Add 2 uL from 1 into 2, then 2uL from 2 into 3 Continue adding 2uL of the previous concentration to the next one down the ladder*\
+        -   *The EpMotion needs \~5μL of dead volume and 1 full qPCR reaction needs 6μL*
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+strip <- c("A01", "B01", "C01", "D01", "E01", "F01", "G01", "H01")
+genecopies <- c(10000000,1000000,100000,10000,1000,100,10,0)
+titles <- c("8-Strip Location", "Number of Synthetic Gene Copies")
+qpcrladder <- data.frame(strip,genecopies)
+colnames(qpcrladder) <- titles
+knitr::kable(qpcrladder, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), full_width = F, position = "left")
+```
+
+</details>
+
+------------------------------------------------------------------------
+
+### qPCR Reagents and MasterMix
+
+After the EpMotion is set up, take reagents out of the **-20°C qPCR/real time PCR box**.
+
+<details>
+
+<summary>
+
+</summary>
+
+-   Take out all of the reagents for the [MasterMix](#qpcrmm) and a 1:100 dilution of the 'GBlock' for the appropriate target
+
+    -   The GBlock is the synthetic gene fragment, and is used to make the ladder\
+    -   Make a fresh ladder for each new qPCR\
+    -   The stock GBlock must be diluted 1:100
+
+-   Forward and Reverse non Illumina primers must be 10mM, and **are specific to the target (V4 or ITS)**
+
+-   Read1 sequencing primers contain forward primers to the ROI. Similarly, Read2 sequencing primers contain reverse primers to the ROI.
+
+    -   If F / R primers cannot be found, R1 / R2 primers (respectively) can be used and must also be 10mM
+
+\
+
+<a name="qpcrmm"></a> $\Large \text{qPCR Master Mix} \rightarrow \text{v4 or ITS2 Syber}$
+<br>      
+
+<table>
+
+
+Reagent                           20ul rxn    10ul rxn
+---------------------------    ------    ------
+Bio-Rad Universal Sybr mix        10ul    5ul
+10mM Primer F                       2ul   1ul
+10mM Primer R                      2ul   1ul
+Sample                           2-6ul    1-3ul
+Water                             to 20ul   to 10ul
+
+</table>
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+temp <- c("98°C", "98°C", "46°C", "72°C", "55°C")
+steps <- c("Initial Denaturation", "_ Denaturation (x39)", "_ Annealing (x39)", "_ Extension and Plate Read (x39)", "Final Extension")
+t <- c("03:00", "00:15", "00:30", "01:00", "00:31")
+titles <- c("Step", "Temp", "Time(mm:ss)")
+v4syber <- data.frame(steps, temp, t)
+colnames(v4syber) <- titles
+knitr::kable(v4syber, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), full_width = F, position = "left")
+```
+
+</details>
+
+------------------------------------------------------------------------
+
+## Setting Up And Analyzing Output In Bio-rad CFX Manager 3.1
+
+------------------------------------------------------------------------
+
+### Plate file set-up: *Only if Existing Plate File Needs Modification*
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Open the program: Bio-Rad CFX Manager
+
+2.  In the top left corner select 'File' / 'New' / 'Plate'
+
+3.  Select cells A01 through P21. On the right side select 'Sample Type' / 'Unknown'
+
+4.  Select cells A01, A02, and A03. *You must select a triplicate series to assign names and information*.\
+    On the right side under 'Sample Type' select 'unknown'.\
+    Under 'Replicate \#' enter '1' for the first triplicate set and check the load box. *You must select load for the information you have entered to be put in the plate file*
+
+5.  Continue down the plate selecting triplicates (i.e., triplicate 1 is A1:A3, triplicate 2 is C1:C3, triplicate 3 is E1:E3) and assigning each triplicate set a different replicate \#, after checking the 'load' box.
+
+    The first 8 triplicate sets will fill in columns 1:3, while leaving every other row empty. After the first 8 triplicates, the next 8 will fill in column 4:6 while leaving every other row empty. After columns 1:21 are filled in with every other row being empty, samples can start to fill in the empty cells, as triplicates, starting in B01:B03.
+
+6.  Select cells B22:B24, on the right under 'Sample Type' select 'Standard'. Under 'Replicate \#' check the load box and enter 1 for 'replicate number', under 'Concentration' enter '1.00E+07'.
+
+7.  Select cells D22:D24, on the right under 'Sample Type' select 'Standard'. Under 'Replicate \#' check the load box and enter 2 for 'replicate number', under 'Concentration' enter '1.00E+06'.
+
+8.  Select cells F22:F24, on the right under 'Sample Type' select 'Standard'. Under 'Replicate \#' check the load box and enter 3 for 'replicate number', under 'Concentration' enter '1.00E+05'.
+
+9.  Select cells H22:H24, on the right under 'Sample Type' select 'Standard'. Under 'Replicate \#' check the load box and enter 4 for 'replicate number', under 'Concentration' enter '1.00E+04'.
+
+10. Select cells J22:J24, on the right under 'Sample Type' select 'Standard'. Under 'Replicate \#' check the load box and enter 5 for 'replicate number', under 'Concentration' enter '1.00E+03'.
+
+11. Select cells L22:L24, on the right under 'Sample Type' select 'Standard'. Under 'Replicate \#' check the load box and enter 6 for 'replicate number', under 'Concentration' enter '1.00E+02'.
+
+12. Select cells N22:N24, on the right under 'Sample Type' select 'Standard'. Under 'Replicate \#' check the load box and enter 7 for 'replicate number', under 'Concentration' enter '1.00E+01'.
+
+13. Select cells P22:P24, on the right under 'Sample Type' select 'Standard'. Under 'Replicate \#' check the load box and enter 8 for 'replicate number', under 'Concentration' enter '1.00E+00'.
+
+14. Once the entire plate is filled out select OK on the bottom right of the window and save the plate file as the date followed '384_QPCR_PlateLayout" in (Z:MARSData/qPCR/PlateLayouts)
+
+</details>
+
+------------------------------------------------------------------------
+
+### Analyzing qPCR Output adn Generating Report
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Once the qPCR has finished running BioRad CFX96 Real Time System thermocycler, insert a pen drive into the thermocycler USB port and export the file, by clicking 'Export'
+
+2.  Open the exported file, it should open in the program: 'Bio-Rad CFX Manager'
+
+3.  Save the exported file to [(Z:MARSData/qPCR/RealTimeOutput)]{style="color:#4d53da"} and open it
+
+4.  In the top left corner select Settings/Plate Setup/Replace Plate File... and select the updated plate file layout from [**(Z:MARSData/qPCR/PlateLayouts)**]{style="color:#4d53da"}
+
+5.  Click on the 'Plate Setup' tab in the top right corner, click 'View / Edit Plate'
+
+6.  Click on the 'Spreadsheet Viewer / Importer' button in the top right (with a magnifying glass symbol), click 'Import'
+
+7.  Select the Import CSV previously made **MarsData/qPCR/YYYYMMDD.PlateName.Target.import.csv** and import it. Click 'okay / yes' and save the file
+
+8.  Look at each triplicate for where the curve meets the threshold and exclude any outliers by clicking (left click) on the well or the point on the graph, and then selecting "remove from analyzation"
+
+9.  Adjust the threshold if necessary by dragging it upwards on the graph (top left)\
+    *this is necessary when a sample has clearly not amplified but one of the triplicates has a wonky low curve that clearly does not represent true amplification*
+
+10. Once the data has been analyzed and outliers have been removed save the changes to the file
+
+11. **To Generate the qPCR Report**; in the top left select Export/LIMS Export
+
+12. Save the workbook using the date and project name for the title Example: 20181109.TGMStudy.qPCRreport to the Report folder (Z:MARSData/qPCR/Reports)
+
+</details>
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# Pooling, Normalization, and Cleanup
+
+PCR Products are pooled into a single 1.5mL tube, after concentrations are normalized. The pooled PCR product is then cleaned and concentrated for sequencing
+
+------------------------------------------------------------------------
+
+## EpMotion Normalization
+
+EpMotion normalization consists of creating the protocol for the ePmotion to pool samples at an even concentration
+
+<details>
+
+<summary>
+
+</summary>
+
+In the book, write down the project name, the RID, and the number of samples that will be pooled
+
+1.  Download the [Pooling Template from the LIMS]{style="color:#009900"}\
+    (LIMS$\rightarrow$Reports/Templates tab$\rightarrow$Pooling Template)\
+    Enter the RID of the PCR you are pooling
+
+    **Make sure that your blank and zymo appear in the file. If they do not appear, ensure they have been added to the sample book. You need to do this by hand for every PCR and re-download the Pooling Template.**
+
+2.  Open the [pooling_template in the MARS templates folder]{style="color:#009900"}\
+    [(**Z: MarsData/templates/EPmotion_PCR_Pooling_Template.xlsx**)]{style="color:#4d53da"}
+
+3.  Copy the information from the [**LIMS generated pooling template**]{style="color:#009900"} and paste it into the [**'pooling_template' sheet of the EPmotion Pooling template**]{style="color:#009900"}\
+    Type in the Sequence Run ID (SIDYY0\#\# ex- SID18033) into to the **Sequencing_Run_ID** sheet
+
+4.  Be sure to change the "yes" to a "no" for the Blank to ensure it gets pooled by the EpMotion. Pooling is determined by concentration
+
+    -   Concentrations \>0.5ng/μL are always pooled. *The formula may be modified to "\>0.01ng/uL" to encompass more samples.*
+    -   If a PCR that amplified poorly is being sequenced, it may make sense to have a pool that is all of the "zero" amplification samples:
+        -   Sort the sheet by PCR_concentration
+        -   Proceed making the "high" pool
+        -   At the "high" pool CSV step, create a copy and save as "zero" pool before editing to delete samples not being pooled.
+        -   Delete out all samples from "high" pool, leaving only "zero" pool samples. Manually enter what volume to (evenly) pool, and adjust Tool if necessary.
+    -   All negative controls are pooled
+    -   Zymos are all pooled, **with a volume about equal to the volume being pooled for the sample with the highest pcr concentration**\
+        \
+
+5.  Go into **Sheet2** of the workbook and scroll to the last sample (your Blank) and type in 10 where the zero error is.
+
+6.  Scroll back up and enter various values in the desired pooling ng cell until your lowest volume pooled is 3.
+
+7.  Save the workbook in [**(Z:MARSData/SequencingRunPooling)**]{style="color:#4d53da"}and save the EPmotion_PCR_Normalization_Template sheet as a csv in **(Z:MARSData/SequencingRunPooling)**.
+
+8.  Save the **pooling_template sheet** as a csv in [**(Z:MARSData/SequencingRunPooling)**]{style="color:#4d53da"} and upload the csv to the Sequencing Run Book in the LIMS using csv batch upload
+
+9.  Open the **EPmotion_PCR_Normalization_Template csv** separate from the workbook and delete out all rows for samples that are not being pooled (have a pool volume of zero), re-save the file, and put it on a USB drive.\
+    **DO NOT delete anything from the workbook- ONLY delete from the csv**
+
+10. On the epMotion, open [**PostPCR_Pooling (epMotion:MARS/MARS COMMON)**]{style="color:#4d53da"} and import the previously saved csv into the sample transfer step,\
+    making sure to choose pipette samples individually.
+
+11. Populate the workdeck with the appropriate labware, make sure that the 1.5mL tube is labeled: on the top with the RID and number of samples pooled, and on the side with the date and a printed RID label to minimize any hand writing confusion- run the protocol
+
+</details>
+
+## PCR Clean Up
+
+Cleaning pooled PCR products using magnetic beads to remove unwanted band sizes
+
+<details>
+
+<summary>
+
+</summary>
+
+In the book, write down the the RIDs that are being cleaned. Write down each step of cleaning and any deviations from the protocol as you go.
+
+See the notes at the end of the protocol
+
+1.  Gather all of the poolings to be cleaned, and allow them to thaw in the 4°C fridge
+
+2.  Make 70% or 75% EtOH in a 5mL tube (enough for 3 washes)
+
+    $\text{Total volume of 70% EtOH} = 600 \cdot (\text{# of samples} + 1)$ $\text{volume of 95% EtOH needed to make 70% EtOH} = (\text{Total volume of 70% EtOH} \cdot 0.70) \div 0.95$ $\text{Total volume of 70% EtOH} - \text{volume of 95% EtOH needed to make 70% EtOH} = \text{volume of water}$
+    
+    $\text{Total volume 75% EtOH desired} = 600 \cdot (\text{# of samples} + 1)$
+    $\text{Total volume 95% EtOH needed} = (\text{Total volume 75% EtOH desired} \cdot 0.75)$
+    $\text{Total volume water needed} = \text{Total volume 75% EtOH desired} - \text{Total 95% EtOH needed}$
+
+3.  Aquire the **Alpaqua Magnet Rack** and **semi-skirted plate used for cleaning**\
+    The semi-skirted plate and magnet to be used for cleaning pools are located on the open shelf above the bench.
+
+4.  Peel off foil of the wells to be used, use a razor. Color used wells with a black sharpie.\
+    Always use new wells for cleaning. **Arrange pooled samples to be in the same order as in the plate**
+
+5.  Add 40μL of beads to wells being used, then add 50μL of pooled PCR product beads **(1:0.8 ratio)**\
+    Avoid creating bubbles, pipette to mix thoroughly. *This step is where you should begin writing in the book*
+
+6.  Incubate off of the magnet, at room temperature, for 5 minutes
+
+7.  Incubate on the magnet for 5 minutes. The beads should clear to the sides\
+    Discard the supernatant
+
+8.  Without removing the plate from the magnet, wash with 200μL 70% or 75% ethanol, incubate for 1 minute, and then discard the supernatant.\\
+    Do not resuspend the beads during this step. Repeat for a total of 3 washes. (*For stubborn primer dimers, additional washes are helpful*)
+    
+    You should not need to incubate; once ethanol is added, you can pull up supernatant immediately
+
+    Go in with a p-10 to remove **all** ethanol
+
+9.  Allow the sample to dry on the thermoblock at 36°C until there are visible cracks in the ring of beads (this can take anywhere between 5-20 minutes)\
+    The thermoblock temperature may be from 36°C to 54°C
+
+10. Remove the plate from the magnet, and add 25μL of water. Resuspend the beads by pipetting.\
+    Incubate at room temperature, off of the magnet, for 3 minutes
+
+11. Place the plate on the magnet for 3 minutes/ until the beads have cleared
+
+12. Transfer the supernatant into a labeled 0.5mL tube *(label the top with the RunID or pool name and Clean, label the side with the date)*.\
+    This is the cleaned PCR product.
+
+13. Run on the QIAxcel to check if the \<150bp fragments were removed
+
+> **Notes**: $\star$ The pooling to bead ratio must be 1 : 0.8\
+> You will usually use 50uL pool + 40uL of beads, but if less pooling product is available multiply the volume of pooling used for cleaning by 0.8 to obtain the needed volume. At least 20uL of pooling product is needed\
+> \
+> Beads can be found in a 1.5mL aliquot labeled "Mag-beads", on the bench. Stock beads are in the 4℃ fridge
+>
+> -   Allow the OMEGA bio-tek Mag-Bind RXNPure Plus Beads to reach room temperature.\
+>     Failure to do so will cause improperly cleaned samples and potentially a failed sequencing run.
+> -   Be sure to thoroughly vortex beads before creating the aliquot or cleaning samples.\
+>     Never spin the 1.5mL bead aliquot as this will cause uneven distribution of beads when dispensing
+
+</details>
+
+------------------------------------------------------------------------
+
+## Quantification of Cleaned PCR Pools
+
+Pooled PCR Products are Quantified via the Qubit
+
+<a name="qubitsample"></a>
+
+Qubit sample preparation:
+
+:   198$\mu$L of Qubit working solution and 2$\mu$L of DNA, followed by 2 minute incubation in the dark at room temperature\
+    *Only Qubit standards vary in preparation*
+
+<details>
+
+<summary>
+
+</summary>
+
+$\star$ **Qubit working solution is light sensitive**\
+[Qubit working solution]{style="color:#009900"} and [Qubit standards]{style="color:#009900"} are kept in the 4°C fridge\
+Qubit tubes and the Mars made 1.1 ng/$\mu$L standard, are kept on the workbench
+
+\
+
+Aquire ^**1**^pooled PCR products to be quantified, ^**2**^Qubit 0.5mL tubes for samples and standards, ^**3**^Qubit standards, the ^**4**^1.1ng/$\mu$L standard, and a ^**5**^Qubit working solution aliquot.\
+*Keep the Qubit working solution in the foil covered Pyrex bottle on the workbench during use*
+
+**Standards**
+
+1.  Set up the Qubit by selecting dsDNA High Sensitivity and choose **Run Standards**
+
+2.  Pipette 10$\mu$L of standard 1 into a labeled Qubit tube. Repeat with standard 2. Add 190$\mu$L of Qubit working solution to the tubes containing standards 1 and 2.\
+    Flick and vortex, then incubate in the dark drawer for **2 minutes**. After incubation, flick and spin down the standards\
+    Follow the instructions on the Qubit screen to complete quantification of standards 1 and 2.
+
+    **Standard 1 should be 10-20ng/**$\mu$L, and Standard 2 should always be \~10X greater than Standard 1, i.e, 10000-20000ng/$\mu$L
+
+3.  Quantify the 1.1ng/μL standard according to **Qubit sample prep** **An acceptable value for the 1.1ng/**$\mu$L standard is between 0.85 and 1.30 ng/$\mu$L
+
+    **Record all standard values in the lab notebook like so:**
+
+    +-------------------------------------------+-------------------------------------------+---------------------------------------------+
+    | Standard 1$\rightarrow$ \_\_\_\_ng/$\mu$L | Standard 2$\rightarrow$ \_\_\_\_ng/$\mu$L | 1.1 Standard$\rightarrow$ \_\_\_\_ng/$\mu$L |
+    +-------------------------------------------+-------------------------------------------+---------------------------------------------+
+
+    +:==========================================+:==========================================+:============================================+ +-------------------------------------------+-------------------------------------------+---------------------------------------------+
+
+**Pooled Samples**
+
+Amplicon Pools are concentrated to 1.1 ng/μL\
+*unless amplicon is not v4* $\rightarrow$ [see table below](#conctbl)
+
+**Be sure to thouroughly mix pools before creating any dilutions or quantifying**
+
+1.  Make a 1:10 dilution of each pooling\
+    Add 18μL of MBG H~2~O to 2μL of PCR pooling, in a labeled 0.5mL tube
+    *You may skip this step if you choose to simply take an initial reading from the original cleaned pool*
+
+2.  Quantify the 1:10 dilution of each pooling
+
+    Write down 1:10 concentration values as so:
+
+    |                                                  |
+    |:-------------------------------------------------|
+    | RID\#\#1 (1:10, 2μLpool+18μLH~2~O):\_\_\_\_ng/μL |
+    | RID\#\#2 (1:10, 2μLpool+18μLH~2~O):\_\_\_\_ng/μL |
+    | RID\#\#3 (1:10, 2μLpool+18μLH~2~O):\_\_\_\_ng/μL |
+
+3.  If samples are between 0.85 to 1.30 ng/μL, stop, and label the 1:10 dilution (or original tube) with a **4nm sticker on the top of the tube**
+
+4.  Continue concentrating pools outside of the accepted concentration range, **one-by one**
+
+    -   If pool concentrations are too low, add 0.5-2μL of pooling or quantify the undiluted pool\
+
+    -   If pool concentrations are too high, add 1-10μL of H~2~O to the 1:10 dilution
+    
+    -   **Do not add H~2~O to original pools; only add to dilutions**
+
+    -   Refer to past pooling concetration steps written in the book, or the equations below, to determine how much pool or water to add\
+         \
+
+5.  Write down each step taken to achieve 1.1ng/μL in the book.\
+    When you are finished, what is written in the book should be similar to:
+
+    +:----------------------------------------------------------+:--------------------------------------------------------------+:-------------+
+    | RID\#\#1(1:10, 2μLpool+18μLH~2~O): $\underline{1.5ng/μL}$ | \+ 7μL H~2~O $\rightarrow$ $\underline{1.1ng/μL}$ ng/μL       | $\checkmark$ |
+    +-----------------------------------------------------------+---------------------------------------------------------------+--------------+
+    | RID\#\#2(1:10, 2μLpool+18μLH~2~O): $\underline{0.6ng/μL}$ | \+ 2μL non-dilute $\rightarrow$ $\underline{1.09ng/μL}$ ng/μL | $\checkmark$ |
+    +-----------------------------------------------------------+---------------------------------------------------------------+--------------+
+
+\
+
+------------------------------------------------------------------------
+
+Equations for determining volume of pool or water needed to achieve final concentration of 1.1ng/μL
+
+<details>
+
+<summary>
+
+</summary>
+
+**Concentration(1) too high, how many μL H~2~O to add?**\
+$$ 1.1 \div \text{Concentration 1} = \text{Final volume with added H}_{2}\text{O}\Rightarrow \text{Final volume with added H}_{2}\text{O} - 20 \text{μL} \textit{(from dilution)} = \text{μL of H}_{2}\text{O to add}$$ \* **Concentration(1) too low, how many μL undiluted pool to add?**\
+$\text{Concentration 1} \cdot 20\text{μL}= \text{ng of pool in dilution} \\\ \text{Concentration1} \cdot 10 = \text{concentration of undiluted pool} \\ \text{22ng} = \text{ng you want to achieve} \Rightarrow \\ \text{22ng} - \text{ng of pool in dilution} \div \text{concentration of undiluted pool} = \text{μL undiluted pool to add}$
+
+</details>
+
+------------------------------------------------------------------------
+
+<a name="conctbl"></a> Amplicon Pooled Concentrations for Sequencing
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+Amplicon <- c("V4 Amplicons (16S)","V9 Amplicons (18S)","Fungal Amplicons (ITS)","V2 Amplicons","V3 Amplicons","400bp Genomes","650bp Genomes")
+Concentration<-c("1.1 ng/μL","1.0 ng/μL","1.1 ng/μL","1.1 ng/μL","1.0 ng/μL","1.1 ng/μL","1.7 ng/μL")
+titles<-c("Amplicon", "Concentration")
+ampconcs <- data.frame(Amplicon,Concentration)
+colnames(ampconcs) <- titles
+knitr::kable(ampconcs, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), full_width = F, position = "left")
+```
+
+> Pooled amplicons are stored in the -20°C freezer
+
+</details>
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# Genome quantification, preparation, and cleanup
+
+------------------------------------------------------------------------
+
+## Nextera XT Sample Preparation
+
+Samples submitted for small genome sequencing should be quantified via the [Qubit](#qubitsample), and use the [Nextera XT Kit]{style="color:#009900"} for preparation and clean up
+
+------------------------------------------------------------------------
+
+### Nextera XT Acronyms and Method Overview
+
+<details>
+
+<summary>
+
+</summary>
+
+| **Acronym** | **Definition**            |
+|:------------|:--------------------------|
+| TD          | Tagment DNA Buffer        |
+| ATM         | Amplicon Tagment Mix      |
+| NT          | Neutralize Tagment Buffer |
+| NPM         | Nextera PCR Master Mix    |
+
+```{r, out.width = "50%", echo=FALSE, fig.align='left'}
+knitr::include_graphics("https://i0.wp.com/www.molecularecologist.com/wp-content/uploads/2015/01/Screen-Shot-2015-01-20-at-12.48.12-AM.png?resize=468%2C533")
+```
+
+$\tiny \text{    A. Nextera XT transposome with partial adapters is combined with template DNA Call out}$   $\tiny \text{    B. Tagmentation to fragment and add partial adapters}$   $\tiny \text{    C. Limited cycle PCR to add sequencing primer sequences and indexes}$
+
+</details>
+
+------------------------------------------------------------------------
+
+### Nextera XT Sample Preparation - Workflow
+
+<details>
+
+<summary>
+
+</summary>
+
+Multiple reagents must be pulled out of the freezer ahead of time. *Tagment Reagents* $\rightarrow$ **ATM** & **TD** reagents must be thawed on ice\
+Pull these reagents out before starting the reactions.
+
+*Amplification Reagents* $\rightarrow$ Indices must be thawed at room temperature. **NPM** reagent must be thawed on ice.\
+Pull these reagents out after placing the samples in the thermocycler for the tagmentation step.
+
+1.  Quantify submitted DNA using the [Qubit]{style="color:#009900"}, then dilute to **0.2ng/μL**\
+    *Concentrations between 0.17ng/μL and 0.3ng/μL are acceptable*
+
+2.  Use **2.5μL of the \~0.2ng/μL dilution** to enter into the Nextera XT preparation kit.\
+    Reactions can be completed in 0.5mL PCR tubes, strips, or a 96 well semi skirted plate, depending on the number of genomes to be prepared.
+
+3.  Add **5μL** of [**TD**]{style="color:#009900"} to each sample and pipette to mix
+
+4.  Add **2.5μL** of [**ATM**]{style="color:#009900"} to each sample and pipette to mix
+
+5.  Place the plate in [Thermocycler CT019662]{style="color:#009900"}\
+    Use protocol [**NEXTERA_TAG**]{style="color:#4d53da"} found in the [\<**Root**\>]{style="color:#4d53da"} folder
+
+6.  Upon completion, **immediately** remove the plate from the thermocycler
+
+7.  Add **2.5μL** of [**NT**]{style="color:#009900"} and pipette to mix.\
+    Quickly centrifuge the plate and incubate at room temperature for 5 minutes.
+
+8.  Add **7.5μL** [**NPM**]{style="color:#009900"} to each sample.
+
+9.  Add **2.5μL of the Forward Primer** and **2.5μL of the Reverse Primer** and pipette to mix.\
+    Centrifuge briefly.
+
+    Be mindful when selecting Indices, especially when working with just a handful of samples.
+
+    Illumina recommends the following:
+
+```{r, echo=FALSE, Warning=FALSE, results='asis'}
+numbsmp<-c("2 Samples","3 Samples","4-5 Samples","6 Samples")
+Ri7<- c("N702 & N701 **or** N702 & N704","N701, N702, & N704 **or** N703, N705 & N706","N701, N702, N704, & any 1 additional **or** N703, N705, N706, & any 1 additional","N701, N702, N703, N704, N705, & N706")
+Fi5 <- c("Any","Any","Any","Any")
+illprimers<- data.frame(numbsmp,Ri7,Fi5)
+colnames(illprimers) <- c("Number of Samples", "Reverse (i7) Primer Selection", "Forward(i5) Primer Selection")
+knitr::kable(illprimers, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), full_width = F, position = "left")
+```
+
+    **<span style ="color:#4d53da">NOTE</span>: i7 indexes are not repeated unless completely necessary**
+      
+
+1.  Place the plate in [**Thermocycler CT019662**]{style="color:#009900"}.\
+    Use protocol [**NEXTERA_PCR**]{style="color:#4d53da"} found in the [\<**Root**\>]{style="color:#4d53da"}folder
+
+    You may stop at this point.\
+    **Do not proceed with library normalization or sequencing protocol as written in the Nextera Protocol**
+
+2.  PCR clean-up and size select amplified tagments as outlined above\
+    Use the Mag-Beads found in the 4C fridge\
+    Use the Alpaqua Magnum FLX magnet to clear the supernatant
+
+3.  Genomes should be brought to 4nM (1.7ng/μL) for sequencing using the Qubit
+
+</details>
+
+------------------------------------------------------------------------
+
+## TruSeq PCR-Free Sample Preparation
+
+Concentrate samples to \~40 ng/μL (35-50ng/μL) using the Qubit
+
+**Keep all reagents on magnetic beads from the -20C, mix aliquots by pipetting or inverting DO NOT VORTEX**
+
+### TruSeq PCR-Free Sample Preparation - Acronyms
+
+<details>
+
+<summary>
+
+</summary>
+
+```{r, echo=FALSE, Warning=FALSE, results='asis'}
+Acronyms<-c("SPB","CTE","ERP2","RSB","CTA","ATL","CTL","LIG2","STL")
+Definition<-
+c("Sample Purification Beads","End Repair Control","End Repair Mix","Resuspension Buffer","A-Tailing Control","A-Tailing Mix","Ligation Control","Ligation Mix","Stop Ligation Buffer")
+knitr::kable(data.frame(Acronyms,Definition)) %>% 
+  kableExtra::kable_styling(bootstrap_options = "bordered", full_width = F, position = "left")
+```
+
+</details>
+
+### TruSeq PCR-Free Sample Preparation - Workflow
+
+<details>
+
+<summary>
+
+</summary>
+
+[**1)**]{style="color:#cc0000"} **Fragment DNA**
+
+1.  Transfer 50μL of supernatant from each sample into a Covaris tube. If the glass rod falls out of the Covaris tube- discard the entire tube and get a new one. Closing the tubes can be difficult, ensure that the glass rod is as upright as possible before closing.
+2.  Turn on the Covaris and the computer
+3.  Open SonoLab 7.2 and select the method: TruSeq PCR-free HS (550bp)
+4.  Fill the chamber with milliQ water until water goes into the overflow chamber located to the right of the main chamber.
+5.  Lower the square handle and close the door.
+6.  Check to make sure there are all green check marks in the Instrument status window under Status.
+7.  Open the door and insert a Covaris tube with sample, lower the square handle, and close the door.
+8.  Make sure all of the green check marks are still on the screen.
+9.  Click Run.
+10. Repeat this for all samples, once finished close out of the program and shut down both the computer and the instrument.
+11. Using a 1000μL pipette- pipette out all of the water from the chamber you can remove the chamber insert to get the rest of the water out, just make sure to put it back when you are done. If necessary use a Kimwipe to get any last bit of water.
+12. Close the door.
+13. Transfer sonicated samples from the covaris tubes to a bead cleaning plate.
+
+[**2)**]{style="color:#cc0000"} **Clean Up Fragment DNA**
+
+1.  Vortex SPB until well-dispersed\
+
+2.  Add 80μL SPB to each well, pipette up and down to mix\
+
+3.  Incubate the plate at room temperature for 5 minutes\
+
+4.  Place the plate on the magnetic stand until the liquid is clear (\~2-3min)\
+
+5.  Remove and discard all supernatant from each well\
+
+6.  Wash two times as follows:
+
+    i)  Make 80% EtOH fresh and add 200μL to each well\
+    ii) Incubate on the magnetic stand for 30 seconds\
+    iii) Remove and discard all supernatant\
+         \
+
+7.  Use a p20 or p10 to remove any remaining EtOH\
+
+8.  Dry the samples until the beads appear cracked (\~5-10min)\
+
+9.  Remove the plate from the magnetic stand\
+
+10. Add 1.5μL RSB to each well\
+
+11. Pipette up and down to resuspend the beads\
+
+12. Incubate at room temperature for 2 minutes\
+
+13. Place on the magnetic stand and wait until the liquid is clear (\~2-3min)\
+
+14. Transfer 50μL of supernatat to a 1.2mL PCR tube or 8-strip tube depending on how many samples you are working with.
+
+[**3)**]{style="color:#cc0000"} **Repair Ends and Select Library Size**
+
+1.  Add 10μL of **CTE** to each sample\
+
+2.  Add 40μL of **ERP2** to each sample\
+
+3.  Pipette up and down to mix\
+
+4.  Place on Thermocycler and run the following protocol: turseq erp
+
+5.  Remove samples from the Thermocycler once the protocol is complete and transfer the samples to a bead cleaning plate\
+
+6.  Make the following dilution of the SPB:
+
+    (\# of samples x 92μL of SPB) + (\# of samples x 92μL of H2O)
+
+7.  Vortex the SPB dilution until the beads are well-dispersed\
+
+8.  Add 160μL of diluted SPB to each sample, pipette up and down to mix\
+
+9.  Incubate at room temperature for 5 minutes\
+
+10. Place the plate on the magnetic stand until the liquid is clear (\~5min)
+
+11. Transfer 250μL of supernatant to a new well on the bead the cleaning plate\
+
+12. Discard any remaining diluted SPB\
+
+13. Vortex undiluted SPB until well-dispersed\
+
+14. Add 30μL undiluted SPB to each well, pipette to mix\
+
+15. Incubate at room temperature for 5 minutes\
+
+16. Place the plate on the magnetic stand until the liquid is clear (\~2-3min)\
+
+17. Discard all supernatant\
+
+18. Wash two times as follows:
+
+    i)  Make 80% EtOH fresh and add 200μL to each well\
+    ii) Incubate on the magnetic stand for 30 seconds\
+    iii) Remove and discard all supernatant\
+         \
+
+19. Use a p20 or p10 to remove any remaining EtOH\
+
+20. Allow the plate to dry until the beads appear cracked\
+
+21. Remove the plate from the magnetic stand\
+
+22. Add 1.5μL of RSB and pipette to re-suspend the beads\
+
+23. Incubate at room temperature for 2 minutes\
+
+24. Place the plate on the magnetic stand\
+
+25. Transfer 15μL of supernatant to a 0.2mL PCR tube or 8-strip tube *depending on how many samples you are working with*
+
+This is a safe stopping point- place all samples in the -20C for up to 7 days
+
+[**4)**]{style="color:#cc0000"} **Adenylate 3' Ends**
+
+1.  Add 2.5μL of CTA to each sample\
+2.  Add 12.5μL of ATL to each sample\
+3.  Pipette up and down to mix\
+4.  Place samples on Thermocycler and run the following protocol: truseq.atail70
+
+[**4)**]{style="color:#cc0000"} **Ligate Adapters**
+
+1.  Add 2.5μL CTL\
+2.  Add 2.5μL LIG2\
+3.  Add 2.5μL DNA Adapters\
+4.  Pipette up and down to mix\
+5.  Place samples on the Thermocycler and run the following protocol: truseq.lig\
+6.  Add 5μL STL\
+7.  Pipette to mix\
+8.  Transfer samples to a bead cleaning plate
+
+[**4)**]{style="color:#cc0000"} **Clean Up Ligated Fragments**
+
+1.  Vortex SPB until well-dispersed\
+
+2.  Add 42.5μL SPB to each sample and pipette to mix\
+
+3.  Incubate at room temperature for 5 minutes\
+
+4.  Place the plate on the magnetic stand and wait for liquid to clear (\~2-3min)\
+
+5.  Remove and discard all supernatant\
+
+6.  Wash two times as follows:
+
+    i)  Make 80% EtOH fresh and add 200μL to each well\
+    ii) Incubate on the magnetic stand for 30 seconds\
+    iii) Remove and discard all supernatant\
+
+7.  Use a p20 or p10 to remove any remaining EtOH\
+
+8.  Allow the plate to dry until the beads appear cracked\
+
+9.  Remove the plate from the magnetic stand\
+
+10. Add 52.5μL of RSB to each well, pipette to mix\
+
+11. Incubate at room temperature for 2 minutes\
+
+12. Place the plate on the magnetic stand and wait for the liquid to clear (\~2-3min)\
+
+13. Transfer 50μL of supernatant to a clean well on the bead cleaning plate\
+
+14. Vortex SPB until well-dispersed\
+
+15. Add 50μL SPB to each sample and pipette to mix\
+
+16. Incubate at room temperature for 5 minutes\
+
+17. Place the plate on the magnetic stand and wait for liquid to clear (\~2-3min)\
+
+18. Remove and discard all supernatant\
+
+19. Wash two times as follows:
+
+    i)  Make 80% EtOH fresh and add 200μL to each well\
+    ii) Incubate on the magnetic stand for 30 seconds\
+    iii) Remove and discard all supernatant\
+
+20. Use a p20 or p10 to remove any remaining EtOH\
+
+21. Allow the plate to dry until the beads appear cracked\
+
+22. Remove the plate from the magnetic stand\
+
+23. Add 22.5μL of RSB to each well, pipette to mix\
+
+24. Incubate at room temperature for 2 minutes\
+
+25. Place the plate on the magnetic stand and wait for the liquid to clear (\~2-3min)\
+
+26. Transfer 20μL of supernatant to a 0.5mL tube
+
+Do not concentrate samples to \~1.7ng/μL- take a reading using the Qubit and record the concentration, store samples in the -20C in the Final Genomes Box
+
+</details>
+
+------------------------------------------------------------------------
+
+## Nextera DNA Flex Library Preparation
+
+### Nextera DNA Flex Library Preparation Acronyms
+
+<details>
+
+<summary>
+
+</summary>
+
+```{r, echo=FALSE, Warning=FALSE, results='asis'}
+Acronyms<-c("SPB","TSB","TWB","TB1","EPM","BLT","RSB")
+Definition<-
+c("Sample Purification Beads","Tagment Stop Buffer","Tagment Wash Buffer","Tagmentation Buffer 1","Enhanced PCR Mix","Bead-Linked Transposomes","Resuspension Buffer")
+knitr::kable(data.frame(Acronyms,Definition)) %>% 
+  kableExtra::kable_styling(bootstrap_options = "bordered", full_width = F, position = "left")
+```
+
+</details>
+
+------------------------------------------------------------------------
+
+### Nextera DNA Flex Library Preparation-Workflow
+
+<details>
+
+<summary>
+
+</summary>
+
+*The products previously known as IDT for Illumina Nextera DNA Unique Dual Indexes Sets A and B (Cat. No. 20027213 and 20027214) are now called IDT for Illumina DNA/RNA UD Indexes Sets A and B*
+
+------------------------------------------------------------------------
+
+***Handling Bead Linked Transposomes (BLT)***
+
+-   If beads are aspirated into pipette tips, dispense back into the plate on the magnetic stand and wait until the liquid is clear (\~2 minutes).
+
+-   Dispense tagment wash buffer (TWB) directly onto the beads.
+
+-   If beads are adhered to the side or top of a 96-well plate, centrifuge at 280 × g for 3 seconds, and then pipette to resuspend
+
+-   *When washing beads:* If liquid becomes adhered to the side or top of the tube or well, centrifuge at 280 × g for 3 seconds to pull volume into liquid.
+
+***Handling Tagment Wash Buffer (TWB)***
+
+-   Pipette slowly to minimize foaming
+
+***Before beginning***:
+
+-   Remove BLT aliquot(s) from fridge, bring to room temperature, vortex vigorously to mix. **DO NOT CENTRIFUGE OR SPIN**
+
+-   Remove TB1 aliquot(s) from -20C, bring to room temperature, vortex to mix
+
+------------------------------------------------------------------------
+
+**Tagment Genomic DNA:**
+
+1.  Add 30μL of gDNA to a plate within a 50-500ng range.\
+    If volume of DNA is \<30μL add nuclease-free water to bring volume to 30μL
+
+2.  Make sure BLT is well mixed, combine 11μL BTL and 11μL TB1 **for each sample**, vortex the master mix, then transfer 20μL master mix to each well\
+    *For more than 4 samples, divide master mix volume evenly into an 8 strip tube, and use a multi-channel pipete to transfer 20uL of master mix into each well containing a sample*
+
+3.  Seal plate and place on thermocycler, run the program **NXT FLX TAG**
+
+**Post Tagmentation Cleanup**
+
+1.  Add 10μL TSB to each well, slowly pipette the entire volume to resuspend beads
+
+2.  Seal the plate and place on thermocycler, run the program **NXT FLX POST**
+
+3.  Place the plate on the magnet and wait until solution is clear *(\~3minutes)*, discard supernatant
+
+4.  Wash twice as follows:\
+
+<!-- -->
+
+i)  Remove plate from magnet and add 100μL TWB onto beads\
+ii) Pipette slowly to minimize foaming, fully resuspend beads\
+iii) Place the plate on the magnet and wait until solution is clear *(\~3 minutes)*, discard supernatant
+
+<!-- -->
+
+1.  Remove plate from magnet and add 100μL TWB, pipette slowly to resuspend beads
+
+2.  Seal the plate and place on magnet stand until step 11
+
+3.  Remove EPM aliquot(s) from -20C, thaw on ice, invert to mix and briefly centrifuge
+
+4.  Remove index adapters from -20C, thaw at room temperature, vortex briefly to mix
+
+5.  Prepare PCR master mix in 1.5mL tube by combining 22μL EPM and 22μL Nuclease-free water for each sample, vortex to mix
+
+6.  With plate on magnet discard supernatant, remove plate from magnet. Immediately add 40μL PCR master mix to each well
+
+7.  Add appropriate index adapters to each sample, pipette to mix
+
+8.  Seal the plate and centrifuge briefly, place the plate on thermocycler and run the program NXT FLX PCR
+
+9.  Remove plate from PCR when the program completes and centrifuge briefly
+
+</details>
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# Sequencing
+
+------------------------------------------------------------------------
+
+## Sample Sheet
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  In the LIMS, navigate to the Sequence Book\
+    (LIMS$\rightarrow$Workflow$\rightarrow$Sequences)
+
+    -   Enter the Run date as **YYYYMMDD**\
+    -   Enter the Sequencing Run ID as SIDYY\#\#\#\
+    -   Enter the Flowcell ID and Reagent Cartridge Number\
+    -   Click 'Save'\
+        \
+
+2.  In the LIMS, navigate to the Sample Sheet page\
+    (LIMS$\rightarrow$ Reports/Templates$\rightarrow$Sample Sheet)
+
+    -   Find and select your Sequencing Run ID\
+    -   Select the correct flow cell\
+        (if the Sequencing Run was named correctly, the flowcell ID should match with the 5 middle alphanumeric values)\
+    -   click *Create Template*\
+        \
+
+3.  Export the Sample Sheet and go through it to make sure there are:
+
+    i)  **No spaces, periods, dashes, or underscores**\
+
+    ii) All samples have **unique Sample Names and Sample IDs**
+    
+    iii) Check that there are **no duplicate indexes** by concatenating the forward and reverse in a separate column, then apply conditional formatting to highlight duplicates
+
+        -   Forgetting to check through the sample sheet can cause issues for the MiSeq during the Indexing QC\
+            \
+
+4.  Once you are sure that the sample sheet is correct, save the Sample Sheet to [**(Z:MarsData/SeqSampleSheet)**]{style="color:#4d53da"}
+
+    -   **Make sure to close out the csv after saving**; if it is still open on your computer, the file will not correctly upload on the sequencer
+
+> **Notes**: The reagent cartridge can be thawed either in the -20C for at least a day or in a cold water bath for at least an hour (use the tub below CGI's sink).
+
+</details>
+
+------------------------------------------------------------------------
+
+## Sequencing Sample Prep Workflow
+
+<details>
+
+<summary>
+
+</summary>
+
+1.  Remove a 500 cycle reagent cartridge from the -20°C freezer.\
+    Place in room temperature water bath for 1 hour.\
+    Place HT1 buffer tube in 4°C fridge
+
+2.  Prepare fresh 0.1N NaOH by diluting the provided 25μL 2N NaOH aliquots with 225μL of nuclease free H~2~O and vortex.
+
+3.  Denature and dilute 16S library and any other libraries.
+
+    All similar samples - 16S, genomes, etc - should be combined according to the number of samples in each single library\
+    (i.e. if a library has 37 samples, 3.7μL should be added to the 4nM pooled libraries tube- do not add less than a micro-liter).\
+    Keep these libraries separate until the final loading of the reagent cartridge.
+
+    i)  Mix 5μL of 4nM library with 5μL of NaOH, vortex, and spin down. Incubate at RT for 5 minutes\
+    ii) Add 990μL HT1 and vortex.\
+        *This library is now at 20pM and is good for three weeks if stored at -20C*\
+        \
+        
+    **Heat Denature protocol** (for use when necessary)
+      i) Turn on thermomixer prior to denaturation to warm up. Settings: 96C, 0 RPM
+      
+      ii) Prepare ice bath
+      
+      iii) Immediately after adding HT1, place pool on thermomixer at 96C for 2 minutes
+      
+      iv) Invert tube twice and then place in ice bath for 5 minutes
+
+4.  Adjust and denature PhiX.
+
+    i)  Mix 2μL 10nM PhiX (aliquot) and 3μL of Tris-Tween (10mM Tris-Cl pH8.5 with 0.1% Tween 20)\
+        Vortex and spin down\
+    ii) Mix 5μL of 4nM PhiX with 5μL of 0.1N NaOH, vortex, and spin down\
+        Incubate at RT for 5 minutes\ *This can be done simultaneously with pooled libraries*
+    iii) Add 990μL HT1 and vortex\
+         *The PhiX is now diluted to 20pM and is good for \~3 weeks if stored at -20C*\
+         \
+
+5.  Adjust amplicon library to 6pM by combining 300μL of the 20pM amplicon library with 700μL of HT1
+
+    i)  Adjust the genome library to 8pM by combining 400μL of the 20pM genome library with 600μL of HT1
+    ii) Adjust PhiX to 8pM by combining 400μL of 20pM PhiX with 600μL of HT1\
+        \
+
+6.  ***In a strictly 16S sequencing run, we use 30% PhiX per run***
+
+    Add 300μL of PhiX to a tube containing 700μL of 16S library, vortex, and chill on ice until ready to load into reagent cartridge.\
+    This proportion of PhiX changes with diversity of samples or the inclusion of genomes.\
+    \
+    *A minimum of 1% PhiX should always be run during sequencing.\
+    A full genome run is up to 12 genomes.\
+    Final sequencing library should be in desired ratio, to a total volume of 1mL.*
+
+7.  When the reagent cartridge has thawed, dry bottom with a paper towel.\
+    Carefully invert the cartridge repeatedly to check each well is thawed, making sure to create as little bubbles as possible. This also serves to mix the reagents.\
+    Place in fridge until ready to load.
+
+8.  Using a clean 1000μL pipette tip in each, pierce the foil covering wells 12, 13, 14, and 17 of the reagent cartridge, leaving the tip in place.
+
+    i)  Pull up \~140μL from the bottom of Well 12 and add it to Read 1.\
+    ii) Transfer the full volume of Read 1 Sequencing Primer to the bottom of well 12 and pipette to mix.\
+    iii) Repeat this process spiking the Index Primer into well 13 and the Read 2 Sequencing Primer into well 14.
+
+9.  Pipette 650μL of final library (containing PhiX) into well 17.\
+    Place cartridge in fridge until ready to load into MiSeq\
+    Unbox flowcell and PR2 bottle
+
+10. Thoroughly rinse the flow cell with DI water. Carefully dry by blotting with Kim wipes\
+    Give special attention to the edges and points of intersection between the glass and plastic
+
+11. Using an alcohol wipe, clean the glass on both sides avoiding the rubber intake ports.\
+    Completely dry the flowcell with lens paper
+
+12. Visually inspect the flow cell to ensure there are no blemishes, particles, or fibers on the glass.
+
+13. Transfer reagent cartridge, flow cell, PR2 bottle to MiSeq.
+
+    i)  Once the reagent cartridge is read, select the correct Sample Sheet from [**(Z:MarsData/SeqSampleSheet)**]{style="color:#4d53da"}\
+        Empty and replace the waste bottle
+
+14. Ensure the machine recognizes the correct sample sheet and the run parameters are correct (specifically the read number)
+
+15. Wait for the MiSeq to perform its pre-run checks and press start\
+    *The pre-run checks can take anywhere from 5 minutes to 15 minutes, so make sure you press start before walking away from the MiSeq*
+
+</details>
+
+------------------------------------------------------------------------
+
+## Run Monitoring
+
+The run should be monitored periodically using Illumina Sequence Analysis Viewer.
+
+<details>
+
+<summary>
+
+</summary>
+
+-   Ideal parameters for a 70% 16S run:
+
+    -   Cluster density 700-800k/mm2 for v2 kits,\
+        however acceptable rests can be had with above 600k/mm2 cluster density\
+    -   Above 80% clusters passing filter
+    -   30% aligned (or percent of total run of PhiX)
+    -   Final \>Q30 score of above 80%
+
+</details>
+
+## Post-Run Wash
+
+[*illumina Support Guide for Miseq Washes*](https://support.illumina.com/content/dam/illumina-support/courses/MiSeq_Instrument_Washes/story_content/external_files/MiSeq_Instrument_Washes_Narration_Transcript.pdf)
+
+Perform a **post-run wash** on the MiSeq by clicking *Start Wash* after the run has completed.\
+Click the option for a **template-line wash**.\
+*The post-run wash takes approximately 20 minutes.*
+
+<details>
+
+<summary>
+
+</summary>
+
+**To prepare fresh 0.5% Tween wash solution**:
+
+1.  Add 5mL of 100% Tween to a 50mL Centrifuge Tube
+
+2.  Add 45mL of water from the Pure Lab Flex filter to the tube and invert several times to mix\
+    *Now you have 10% Tween*
+
+3.  Pour 25 mL of the 10% Tween solution into a 500mL bottle marked "0.5% Tween". The rest can be saved on the bench for a later post-run wash.
+
+4.  Add 475mL Pure Lab filter water to the 500mL bottle marked "0.5% Tween."
+  
+    **This solution should be added to either the squirt bottle labelled "0.5% Tween 20 for MiSeq Wash" or the 500mL Wash Bottle**
+
+**0.5% Tween is already made**:
+
+1.  Remove the spent reagent cartridge and the bottle with excess buffer solution.\
+    Flush the buffer down the drain while running cold water\
+    Empty the waste container and put it back
+
+    **DO NOT DUMP THE REAGENT WASTE DOWN THE DRAIN OR PLACE IN THE TRASH!**\
+    The reagent waste in cartridge well 8 must be disposed of in the specially marked container found in the Satellite Waste Area:
+
+    -   Use the syringe next to the sink to remove as much liquid as possible from the spent cartridge and place in a secondary waste container.
+    -   Dispose of the liquid waste in the formaldehyde waste jug found in the Satellite Accumulation Area\
+    -   Place the spent reagent cartridge in the waste basket.\
+    -   Leave flow cell in place until next sequencing run.\
+        \
+
+2.  Fill each well of the wash resevoir with \~6ml wash solution (does not have to be exact)\
+    *wash solution is 0.5% Tween*\
+    **Leave well 17 empty**
+
+3.  Fill the 500ml wash bottle with 350ml wash solution and place into the MiSeq
+
+4.  Make a fresh dilute bleach solution and add to the wash reservoir in well 17
+
+    -   Add 38μL 5.25% Bleach to 962μL MilliQ water and vortex to mix\
+        *This makes a \~0.2% bleach solution*
+
+5.  Add 50μL 0.2% bleach solution to Reservoir 17\
+    **Be sure to use the plastic resevoir liner, kept on the sink in the sequencing room**
+
+6.  Add 950μL of MilliQ water to Reservoir 17 and pipette to mix
+
+7.  Place the wash cartridge into the chiller, empty and replace the waste container and begin the wash.
+
+</details>
+
+------------------------------------------------------------------------
+
+## Sequence Results
+
+<details>
+
+<summary>
+
+</summary>
+
+When MiSeq Reporter finishes, copy the "DemultiplexSummaryF1L1.txt" from the Data/Intensities/Basecalls/Alignment folder on the MiSeq to (Z:/MarsData/SequenceResults)
+
+1.  To calculate the number of reads per sample, open up the Demultiplexing file that was copied over to SequenceResults.
+
+    -   On BaseSpace, navigate to the run you are resulting and click "FastQ Generation"
+    -   Click on "View Files" in the middle of the screen next to "Logs"
+    -   Select the "DemultiplexSummaryF1L1.txt"
+
+2.  Insert a row below the sample names (Row 2).
+
+3.  Take the average of the values below the sample name.\
+    These are the decimal values that are in the same rows as "s_1\_1101" to "s_1\_2114".
+
+4.  Multiply this average with PF Reads (found under Run Details Indexing QC) and then divide this by 200.\
+    -   In BaseSpace, click on the "Stats.json" file and copy the number of total clusters pass filter to paste into cell B03.
+    *Because Illumina has changed the number of PF reads under Indexing QC from the number of clusters to the number of reads, you now have to divide the number of PF Reads by 200 instead of 100.*\
+    The number of clusters per sample should reflect this.
+    
+    *You can also copy the function from a previous Demux Summary spreadsheet found in **Z: MarsData/SequenceResults***
+
+    This will give you the total number of reads for each sample. Ex. For the first sample (found in cell C2),
+
+5.  Copy and paste the values back into the cells after the calculation is complete.
+
+6.  In the LIMS under Tools, click CSV Batch Upload Tool. Download the CSV for Sequence Results.
+
+7.  Copy both the Sample Names and Values from the Demultiplexing calculation and use "transpose" and "values" to paste them into the csv you just downloaded.
+
+8.  Fill in the Sequencing Run ID into the first column of the Sequence Results csv and upload that file to the LIMS.
+
+</details>
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# Appendices
+
+<a name="Appendix A"></a>
+
+## Appendix A
+
+<details>
+
+<summary>
+
+</summary>
+
+\
+
+$\Large \textbf{i5 Primers}$
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+Sequence <- c("TAGATCGC","CTCTCTAT","TATCCTCT","AGAGTAGA","GTAAGGAG","ACTGCATA","AAGGAGTA","CTAAGCCT","ATCGTACG","ACTATCTG","TAGCGAGT","CTGCGTGT","TCATCGAG","CGTGAGTG","GGATATCT","GACACCGT","CTACTATA","CGTTACTA","AGAGTCAC","TACGAGAC","ATCGTACG","ACTATCTG","TAGCGAGT","CTGCGTGT","TCATCGAG","CGTGAGTG","GGATATCT","GACACCGT","ATCGTACG","ACTATCTG","TAGCGAGT","CTGCGTGT","TCATCGAG","CGTGAGTG","GGATATCT","GACACCGT","ATCGTACG","ACTATCTG","TAGCGAGT","CTGCGTGT","TCATCGAG","CGTGAGTG","GGATATCT","GACACCGT","CTACTATA","CGTTACTA","AGAGTCAC","TACGAGAC","ACGTCTCG","TCGACGAG","GATCGTGT","GTCAGATA","ACGACGTG","ATATACAC","CGTCGCTA","CTAGAGCT","GCTCTAGT","GACACTGA","TGCGTACG","TAGTGTAG","CAGTAGGT","ATAGCGCT","TCTAGACT","TCCTCATG","CGAGCTAG","CTCTAGAG","ATGAGCTC","AGCATACC","CGTCATAC","TCAGTCTA","CATCGTGA","GAGCTCGA","AAGCAGCA","ACGCGTGA","CGATCTAC","TGCGTCAC","GTCTAGTG","CTAGTATG","GATAGCGT","TCTACACT")
+PrimerName <- c("2step_F01","2step_F02","2step_F03","2step_F04","2step_F05","2step_F06","2step_F07","2step_F08","cil.v2.501","cil.v2.502","cil.v2.503","cil.v2.504","cil.v2.505","cil.v2.506","cil.v2.507","cil.v2.508","cil.v2.509","cil.v2.510","cil.v2.511","cil.v2.512","cil.v3.501","cil.v3.502","cil.v3.503","cil.v3.504","cil.v3.505","cil.v3.506","cil.v3.507","cil.v3.508","fung.its2.501","fung.its2.502","fung.its2.503","fung.its2.504","fung.its2.505","fung.its2.506","fung.its2.507","fung.its2.508","v4.SA501","v4.SA502","v4.SA503","v4.SA504","v4.SA505","v4.SA506","v4.SA507","v4.SA508","v4.SB501","v4.SB502","v4.SB503","v4.SB504","v4.SB505","v4.SB506","v4.SB507","v4.SB508","v4.SC501","v4.SC502","v4.SC503","v4.SC504","v4.SC505","v4.SC506","v4.SC507","v4.SC508","v4.SC701","v4.SC702","v4.SC703","v4.SC704","v4.SC705","v4.SC706","v4.SC707","v4.SC708","v4.SC709","v4.SC710","v4.SC711","v4.SC712","v4.SD501","v4.SD502","v4.SD503","v4.SD504","v4.SD505","v4.SD506","v4.SD507","v4.SD508")
+i5Primers <- data.frame(PrimerName, Sequence)
+colnames(i5Primers) <- c("Primer Name", "Sequence")
+knitr::kable(i5Primers, align = "c", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), 
+                            full_width = T, position = "left", font_size = 18) 
+```
+
+\
+
+$\Large \textbf{i7 Primers}$
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+PrimerName <- c("2step_R01","2step_R02","2step_R03","2step_R04","2step_R05","2step_R06","2step_R07","2step_R08","2step_R09","2step_R10","2step_R11","2step_R12","cil.v2.701","cil.v2.702","cil.v2.703","cil.v2.704","cil.v2.705","cil.v2.706","cil.v2.707","cil.v2.708","cil.v2.709","cil.v2.710","cil.v2.711","cil.v2.712","cil.v3.701","cil.v3.702","cil.v3.703","cil.v3.704","cil.v3.705","cil.v3.706","cil.v3.707","cil.v3.708","cil.v3.709","cil.v3.710","cil.v3.711","cil.v3.712","fung.its2.701","fung.its2.702","fung.its2.703","fung.its2.704","fung.its2.705","fung.its2.706","fung.its2.707","fung.its2.708","fung.its2.709","fung.its2.710","fung.its2.711","fung.its2.712","v4.SB701","v4.SB702","v4.SB703","v4.SB704","v4.SB705","v4.SB706","v4.SB707","v4.SB708","v4.SB709","v4.SB710","v4.SB711","v4.SB712","v4.SC701","v4.SC702","v4.SC703","v4.SC704","v4.SC705","v4.SC706","v4.SC707","v4.SC708","v4.SC709","v4.SC710","v4.SC711","v4.SC712","v4.SD501","v4.SD502","v4.SD503","v4.SD504","v4.SD505","v4.SD506","v4.SD507","v4.SD508","v4.SD701","v4.SD702","v4.SD703","v4.SD704","v4.SD705","v4.SD706","v4.SD707","v4.SD708","v4.SD709","v4.SD710","v4.SD711","v4.SD712","806rcbc0","806rcbc1","806rcbc3","806rcbc5","806rcbc8","806rcbc9","806rcbc15","806rcbc21","806rcbc30","806rcbc33","806rcbc34","806rcbc40","806rcbc43","806rcbc44","806rcbc53","806rcbc56","806rcbc57","806rcbc64","806rcbc66","806rcbc69","806rcbc71","806rcbc72","806rcbc76","806rcbc78","806rcbc81","806rcbc85","806rcbc86","806rcbc87","806rcbc89","806rcbc93","806rcbc102","806rcbc104","806rcbc106","806rcbc108","806rcbc110","806rcbc111","806rcbc124","806rcbc125","806rcbc127","806rcbc129","806rcbc130","806rcbc132","806rcbc133","806rcbc137","806rcbc140","806rcbc142","806rcbc145","806rcbc148")
+Sequence <- c("TGACCAAT","CATTTTTA","ACAGTGAT","GTGAAATA","GCCAATAT","CTTGTATA","CAGATCAT","GTAGAGTA","TAGCTTAT","CTATACTA","CTTGTAAT","GCCAATTA","CGAGAGTT","GACATAGT","ACGCTACT","ACTCACTG","TGAGTACG","CTGCGTAG","TAGTCTCC","CGAGCGAC","ACTACGAC","GTCTGCTA","GTCTATGA","TATAGCGA","CGAGAGTT","GACATAGT","ACGCTACT","ACTCACTG","TGAGTACG","CTGCGTAG","TAGTCTCC","CGAGCGAC","ACTACGAC","GTCTGCTA","GTCTATGA","TATAGCGA","CGAGAGTT","GACATAGT","ACGCTACT","ACTCACTG","TGAGTACG","CTGCGTAG","TAGTCTCC","CGAGCGAC","ACTACGAC","GTCTGCTA","GTCTATGA","TATAGCGA","CTCGACTT","CGAAGTAT","TAGCAGCT","TCTCTATG","GATCTACG","GTAACGAG","ACGTGCGC","ATAGTACC","GCGTATAC","TGCTCGTA","AACGCTGA","CGTAGCGA","CAGTAGGT","ATAGCGCT","TCTAGACT","TCCTCATG","CGAGCTAG","CTCTAGAG","ATGAGCTC","AGCATACC","CGTCATAC","TCAGTCTA","CATCGTGA","GAGCTCGA","AAGCAGCA","ACGCGTGA","CGATCTAC","TGCGTCAC","GTCTAGTG","CTAGTATG","GATAGCGT","TCTACACT","TACTAGGT","ACGTACGT","CGCGATAT","CTATCGTG","GCGATACG","AGTCGCAG","GTTACAGC","TAACGTCC","CTACGACC","GAGACTTA","ACTGTGTA","TGCGTCAA","ACAAGGGA","AGTCTCGT","CTGGTCGAT","TGTGCGAT","CAAAGGAT","GCGCTGTA","TGGTATTC","ATGAGCTG","GTCAATCT","GGGAGTTG","TAACGCAA","AAGTGTTC","AGCGCCTT","CCGTATTA","CTCATCAT","GAGGGATG","GCGGTATA","GGTAGAGA","TAGGTGAG","TGTCGATA","CAATTACG","TAGTCACC","GGCAGAAT","TATCGTAC","TCAGCGCA","TAGAACGC","AGAACAAC","GGAAGTCC","AATAGCAG","CTACTCCA","TCCGTGAC","CGGTAGAT","CTCCAAGA","AGGTGTGC","GAGCATGA","TGACAGCT","TTCGCAGG","CGAGAGAA","AGCTTAAC","ACAATGTC","TTGTTGGC","CTCGAGGA","GCTTGGGT","CATTTCTG","AAATAACC","TGCTATGC","AGGGTTCA","CAGCATCG")
+i7Primers <- data.frame(PrimerName, Sequence)
+colnames(i7Primers) <- c("Primer Name", "Sequence")
+knitr::kable(i7Primers, align = "c", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), 
+                            full_width = T, position = "left", font_size = 18) 
+```
+
+</details>
+
+------------------------------------------------------------------------
+
+## Appendix B: epMotion 5075 Labware
+
+<details>
+
+<summary>
+
+</summary>
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+filename <- c("tip10f","tip50f","tip300f","tip1000f","Rack_noTC_1_5ml","Th_Adap_96","ALP_MagFLX_96_1","ALP_MagFLX_96_dwp_krm","MoBio_PowerMag_ep","EP_Reserv_400_ep","EP_TT_PCR_150_h2","EP_TT_PCR_40","BioRad_360_2","EP_MTP_384F","MoBio_DWP_ep")
+labware <- c("10μL epMotion filter tips","50μL epMotion filter tips","300μL epMotion filter tips","1000μL epMotion filter tips","1.5mL Tube Rack","Thermorack for 96-well PCR plates","Magnum FLX magnet for fμLl-skirted 96 well plates","Magnum FLX magnet for MoBio 2mL Deep Well Plates","100mL Reservoir + 30mL Reservoir for Extraction","400mL Reservoir","Eppendorf fμLl-skirted 96-well plates","Eppendorf 384-well plates","BioRad Semi-Skirted 96 well plates","384-well flat-bottom plates for Synergy","MoBio 2mL Deep Well Plates")
+catalognum <- c("30014383","30014430","30014472","30014510","5075751275","5075787008","A000400","A000400","N/A","5075751364","E951020401","30132742","HSS9601","12-566-615","27100-4-EP-DWP")
+epmotionlabware <- data.frame(filename, labware, catalognum)
+colnames(epmotionlabware) <- c("Labware file name", "Labware", "Labware Catalog Number")
+knitr::kable(epmotionlabware, align = "l", booktabs=T) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "bordered"), 
+                            full_width = F, position = "left", font_size = 14) 
+```
+
+</details>
